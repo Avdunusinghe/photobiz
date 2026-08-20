@@ -7,6 +7,12 @@
     <Project Path="src/Infrastructure/Photobiz.Infrastructure/Photobiz.Infrastructure.csproj" Id="85201469-f1a2-4142-aca9-507a95fc1106" />
   </Folder>
   <Folder Name="/tests/" />
+  <Folder Name="/tests/Core/">
+    <Project Path="tests/Core/Photobiz.Application.Tests/Photobiz.Application.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Web/">
+    <Project Path="tests/Web/Photobiz.Api.Tests/Photobiz.Api.Tests.csproj" />
+  </Folder>
   <Folder Name="/Web/">
     <Project Path="src/Web/Photobiz.Api/Photobiz.Api.csproj" Id="6f1ec55c-b2fd-4400-906f-0681f3a2f516" />
   </Folder>
