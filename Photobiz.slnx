@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/Core/">
+    <Project Path="src/Core/Photobiz.Application/Photobiz.Application.csproj" Id="9f36ac5e-3b48-4376-9623-b64146d345a7" />
+    <Project Path="src/Core/Photobiz.Domain/Photobiz.Domain.csproj" Id="9e77ede8-86ee-43d4-9338-baf96f8c1f69" />
+  </Folder>
+  <Folder Name="/Infrastructure/">
+    <Project Path="src/Infrastructure/Photobiz.Infrastructure/Photobiz.Infrastructure.csproj" Id="85201469-f1a2-4142-aca9-507a95fc1106" />
+  </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/Web/">
+    <Project Path="src/Web/Photobiz.Api/Photobiz.Api.csproj" Id="6f1ec55c-b2fd-4400-906f-0681f3a2f516" />
+  </Folder>
+</Solution>
