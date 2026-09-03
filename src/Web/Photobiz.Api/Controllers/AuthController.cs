@@ -15,17 +15,15 @@ namespace Photobiz.Api.Controllers
             _mediator = mediator;
         }
 
-        // Placeholder token issuer for exercising the JWT pipeline from Scalar until real
-        // credential validation (Photobiz.Application/Infrastructure) is wired up.
         [HttpPost("token")]
         public async Task<ActionResult<IssueTokenResult>> IssueToken(
             [FromBody] TokenRequest request,
             CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new IssueTokenCommand(request.Username), cancellationToken);
+            var result = await _mediator.Send(new IssueTokenCommand(request.Username, request.Password), cancellationToken);
             return Ok(result);
         }
     }
 
-    public record TokenRequest(string Username);
+    public record TokenRequest(string Username, string Password);
 }

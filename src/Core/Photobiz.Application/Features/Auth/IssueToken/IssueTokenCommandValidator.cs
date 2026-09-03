@@ -9,6 +9,9 @@ namespace Photobiz.Application.Features.Auth.IssueToken
             RuleFor(x => x.Username)
                 .NotEmpty()
                 .MaximumLength(256);
+
+            RuleFor(x => x.Password)
+                .NotEmpty();
         }
     }
 }

@@ -10,11 +10,16 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.11">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Scalar.AspNetCore" Version="2.16.20" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Photobiz.Application\Photobiz.Application.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Photobiz.Infrastructure\Photobiz.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

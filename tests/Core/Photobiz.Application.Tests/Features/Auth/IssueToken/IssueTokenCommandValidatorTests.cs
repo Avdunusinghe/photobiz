@@ -7,9 +7,9 @@ namespace Photobiz.Application.Tests.Features.Auth.IssueToken
         private readonly IssueTokenCommandValidator _validator = new();
 
         [Fact]
-        public void Validate_WithValidUsername_HasNoErrors()
+        public void Validate_WithValidUsernameAndPassword_HasNoErrors()
         {
-            var result = _validator.Validate(new IssueTokenCommand("someone"));
+            var result = _validator.Validate(new IssueTokenCommand("someone", "password123"));
 
             Assert.True(result.IsValid);
         }
@@ -19,7 +19,7 @@ namespace Photobiz.Application.Tests.Features.Auth.IssueToken
         [InlineData("   ")]
         public void Validate_WithEmptyUsername_HasError(string username)
         {
-            var result = _validator.Validate(new IssueTokenCommand(username));
+            var result = _validator.Validate(new IssueTokenCommand(username, "password123"));
 
             Assert.False(result.IsValid);
             Assert.Contains(result.Errors, e => e.PropertyName == nameof(IssueTokenCommand.Username));
@@ -30,10 +30,21 @@ namespace Photobiz.Application.Tests.Features.Auth.IssueToken
         {
             var username = new string('a', 257);
 
-            var result = _validator.Validate(new IssueTokenCommand(username));
+            var result = _validator.Validate(new IssueTokenCommand(username, "password123"));
 
             Assert.False(result.IsValid);
             Assert.Contains(result.Errors, e => e.PropertyName == nameof(IssueTokenCommand.Username));
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData("   ")]
+        public void Validate_WithEmptyPassword_HasError(string password)
+        {
+            var result = _validator.Validate(new IssueTokenCommand("someone", password));
+
+            Assert.False(result.IsValid);
+            Assert.Contains(result.Errors, e => e.PropertyName == nameof(IssueTokenCommand.Password));
         }
     }
 }

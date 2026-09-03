@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Photobiz.Api.ExceptionHandling;
+using Photobiz.Application.Common.Exceptions;
 
 namespace Photobiz.Api.Tests.ExceptionHandling
 {
@@ -95,6 +96,23 @@ namespace Photobiz.Api.Tests.ExceptionHandling
             Assert.Equal(StatusCodes.Status400BadRequest, httpContext.Response.StatusCode);
             var validationProblemDetails = Assert.IsType<ValidationProblemDetails>(captured!.ProblemDetails);
             Assert.Equal(["'Username' must not be empty."], validationProblemDetails.Errors["Username"]);
+        }
+
+        [Fact]
+        public async Task TryHandleAsync_WithAuthenticationFailedException_Returns401()
+        {
+            var (handler, problemDetailsService) = CreateHandler(Environments.Production);
+            var httpContext = new DefaultHttpContext();
+            ProblemDetailsContext? captured = null;
+            problemDetailsService
+                .TryWriteAsync(Arg.Do<ProblemDetailsContext>(ctx => captured = ctx))
+                .Returns(true);
+
+            var handled = await handler.TryHandleAsync(httpContext, new AuthenticationFailedException(), CancellationToken.None);
+
+            Assert.True(handled);
+            Assert.Equal(StatusCodes.Status401Unauthorized, httpContext.Response.StatusCode);
+            Assert.Equal(StatusCodes.Status401Unauthorized, captured!.ProblemDetails.Status);
         }
     }
 }

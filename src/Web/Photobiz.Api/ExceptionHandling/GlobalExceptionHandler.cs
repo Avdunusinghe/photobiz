@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Photobiz.Application.Common.Exceptions;
 
 namespace Photobiz.Api.ExceptionHandling
 {
@@ -28,6 +29,11 @@ namespace Photobiz.Api.ExceptionHandling
             if (exception is ValidationException validationException)
             {
                 return await HandleValidationExceptionAsync(httpContext, validationException);
+            }
+
+            if (exception is AuthenticationFailedException authenticationFailedException)
+            {
+                return await HandleAuthenticationFailedExceptionAsync(httpContext, authenticationFailedException);
             }
 
             _logger.LogError(exception, "Unhandled exception processing {Method} {Path}",
@@ -78,6 +84,29 @@ namespace Photobiz.Api.ExceptionHandling
             {
                 HttpContext = httpContext,
                 Exception = validationException,
+                ProblemDetails = problemDetails
+            });
+        }
+
+        private async ValueTask<bool> HandleAuthenticationFailedExceptionAsync(
+            HttpContext httpContext,
+            AuthenticationFailedException authenticationFailedException)
+        {
+            httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+
+            var problemDetails = new ProblemDetails
+            {
+                Status = StatusCodes.Status401Unauthorized,
+                Title = "Authentication failed.",
+                Detail = authenticationFailedException.Message,
+                Type = "https://tools.ietf.org/html/rfc9110#section-15.5.2",
+                Instance = httpContext.Request.Path
+            };
+
+            return await _problemDetailsService.TryWriteAsync(new ProblemDetailsContext
+            {
+                HttpContext = httpContext,
+                Exception = authenticationFailedException,
                 ProblemDetails = problemDetails
             });
         }

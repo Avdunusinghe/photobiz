@@ -1,9 +1,11 @@
 using FluentValidation;
 using Mapster;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Photobiz.Application.Common.Behaviors;
 using Photobiz.Application.Common.Settings;
+using Photobiz.Domain.Entities;
 
 namespace Photobiz.Application
 {
@@ -24,6 +26,8 @@ namespace Photobiz.Application
 
             TypeAdapterConfig.GlobalSettings.Scan(typeof(ApplicationAssemblyMarker).Assembly);
             services.AddMapster();
+
+            services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
             return services;
         }

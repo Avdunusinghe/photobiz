@@ -1,0 +1,128 @@
+@use 'tokens' as *;
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-page-bg;
+  padding: $space-6;
+}
+
+.login-panel {
+  position: relative;
+  width: 400px;
+  max-width: 100%;
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-elevated;
+  padding: $space-10 $space-8 $space-8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: $gradient-brand;
+  }
+}
+
+.login-panel__logo {
+  margin-bottom: $space-4;
+}
+
+.login-panel__subtitle {
+  margin: 0 0 $space-6;
+  color: $color-text-secondary;
+  font-size: $font-size-base;
+  text-align: center;
+}
+
+.login-panel__error {
+  align-self: stretch;
+  margin-bottom: $space-5;
+  padding: $space-3 $space-4;
+  border: 1px solid $color-error;
+  border-radius: $radius-md;
+  background: $color-error-bg;
+  color: $color-error;
+  font-size: $font-size-sm;
+}
+
+.login-form {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+}
+
+.login-form__label {
+  margin-bottom: $space-1;
+  font-size: $font-size-sm;
+  font-weight: 700;
+  color: $color-text-primary;
+}
+
+.login-form__input {
+  margin-bottom: $space-5;
+  padding: $space-3;
+  border: 1px solid $color-border-strong;
+  border-radius: $radius-md;
+  font-size: $font-size-base;
+  font-family: inherit;
+  color: $color-text-primary;
+  background: $color-surface;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &::placeholder {
+    color: $color-border-strong;
+  }
+
+  &:hover {
+    border-color: $color-navy-700;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $color-focus-ring;
+    box-shadow: 0 0 0 3px rgba(9, 114, 211, 0.15);
+  }
+}
+
+.login-form__submit {
+  margin-top: $space-2;
+  padding: $space-3 $space-4;
+  border: none;
+  border-radius: $radius-md;
+  background: $color-orange-600;
+  color: $color-text-inverse;
+  font-size: $font-size-base;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.1s ease;
+
+  &:hover:not(:disabled) {
+    background: $color-orange-700;
+    box-shadow: $shadow-card;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    background: $color-border-strong;
+    cursor: not-allowed;
+  }
+}

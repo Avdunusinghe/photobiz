@@ -5,9 +5,16 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <!-- See the Castle.Core PackageReference note below. -->
+    <NoWarn>$(NoWarn);NU1605</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Pinned below the version Microsoft.EntityFrameworkCore.Proxies pulls in transitively
+         (via Photobiz.Api -> Photobiz.Infrastructure): NSubstitute's Castle.DynamicProxy
+         interceptor is incompatible with Castle.Core 5.2.x and throws at mock-invocation time.
+         This test project never exercises EF's proxy generation, so pinning back is safe. -->
+    <PackageReference Include="Castle.Core" Version="5.1.1" />
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="NSubstitute" Version="6.2.0" />

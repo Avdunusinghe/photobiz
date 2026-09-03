@@ -1,0 +1,59 @@
+// Colors
+$color-navy-900: #16191f;
+$color-navy-800: #232f3e;
+$color-navy-700: #2a3f54;
+
+$color-orange-600: #ec7211;
+$color-orange-700: #eb5f07;
+
+$color-page-bg: #f2f3f3;
+$color-surface: #ffffff;
+$color-border: #d5dbdb;
+$color-border-strong: #879596;
+
+$color-text-primary: #16191f;
+$color-text-secondary: #5f6b7a;
+$color-text-inverse: #ffffff;
+
+$color-error: #d13212;
+$color-error-bg: #fdf3f1;
+$color-success: #1d8102;
+$color-warning: #ff9900;
+$color-focus-ring: #0972d3;
+
+// Typography
+$font-family-base:
+  -apple-system, blinkmacsystemfont, 'Segoe UI', roboto, 'Helvetica Neue', arial, sans-serif;
+$font-size-sm: 12px;
+$font-size-base: 14px;
+$font-size-md: 16px;
+$font-size-lg: 20px;
+$font-size-xl: 24px;
+
+// Spacing scale (4px base)
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-5: 20px;
+$space-6: 24px;
+$space-8: 32px;
+$space-10: 40px;
+
+// Shape
+$radius-sm: 2px;
+$radius-md: 4px;
+$radius-lg: 12px;
+$shadow-card: 0 1px 2px rgba(0, 0, 0, 0.15);
+$shadow-panel: 0 2px 8px rgba(0, 0, 0, 0.2);
+$shadow-elevated:
+  0 20px 40px -12px rgba(22, 25, 31, 0.18),
+  0 2px 8px rgba(22, 25, 31, 0.08);
+
+// Brand
+$gradient-brand: linear-gradient(
+  135deg,
+  $color-navy-800 0%,
+  $color-navy-700 55%,
+  $color-orange-600 100%
+);

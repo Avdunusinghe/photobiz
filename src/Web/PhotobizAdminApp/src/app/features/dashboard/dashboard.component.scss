@@ -1,0 +1,75 @@
+@use 'tokens' as *;
+
+.dashboard {
+  min-height: 100vh;
+  background: $color-page-bg;
+}
+
+.dashboard__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space-3 $space-6;
+  background: $color-navy-800;
+}
+
+.dashboard__sign-out {
+  padding: $space-2 $space-4;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: $radius-md;
+  background: transparent;
+  color: $color-text-inverse;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.dashboard__content {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: $space-10 $space-6;
+}
+
+.dashboard__title {
+  margin: 0 0 $space-2;
+  font-size: $font-size-xl;
+  font-weight: 700;
+  color: $color-navy-800;
+}
+
+.dashboard__subtitle {
+  margin: 0 0 $space-8;
+  color: $color-text-secondary;
+}
+
+.dashboard__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: $space-5;
+}
+
+.stat-card {
+  padding: $space-5;
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  box-shadow: $shadow-card;
+}
+
+.stat-card__value {
+  margin: 0 0 $space-1;
+  font-size: $font-size-xl;
+  font-weight: 700;
+  color: $color-navy-800;
+}
+
+.stat-card__label {
+  margin: 0;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+}

@@ -2,28 +2,52 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Photobiz.Application.Common.Exceptions;
+using Photobiz.Application.Common.Interfaces;
 using Photobiz.Application.Common.Settings;
+using Photobiz.Domain.Entities;
 
 namespace Photobiz.Application.Features.Auth.IssueToken
 {
     public class IssueTokenCommandHandler : IRequestHandler<IssueTokenCommand, IssueTokenResult>
     {
         private readonly JwtSettings _jwtSettings;
+        private readonly IApplicationDbContext _dbContext;
+        private readonly IPasswordHasher<User> _passwordHasher;
 
-        public IssueTokenCommandHandler(IOptions<JwtSettings> jwtSettings)
+        public IssueTokenCommandHandler(
+            IOptions<JwtSettings> jwtSettings,
+            IApplicationDbContext dbContext,
+            IPasswordHasher<User> passwordHasher)
         {
             _jwtSettings = jwtSettings.Value;
+            _dbContext = dbContext;
+            _passwordHasher = passwordHasher;
         }
 
-        public Task<IssueTokenResult> Handle(IssueTokenCommand request, CancellationToken cancellationToken)
+        public async Task<IssueTokenResult> Handle(IssueTokenCommand request, CancellationToken cancellationToken)
         {
-            var claims = new[]
+            var user = await _dbContext.Users
+                .Include(x => x.UserRoles)
+                .ThenInclude(x => x.Role)
+                .SingleOrDefaultAsync(x => x.Username == request.Username, cancellationToken);
+
+            if (user is null ||
+                _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password) == PasswordVerificationResult.Failed)
             {
-                new Claim(JwtRegisteredClaimNames.Sub, request.Username),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                throw new AuthenticationFailedException();
+            }
+
+            var claims = new List<Claim>
+            {
+                new(JwtRegisteredClaimNames.Sub, user.Username),
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
+            claims.AddRange(user.UserRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole.Role.Name)));
 
             var credentials = new SigningCredentials(
                 new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key)),
@@ -39,7 +63,7 @@ namespace Photobiz.Application.Features.Auth.IssueToken
 
             var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-            return Task.FromResult(new IssueTokenResult(accessToken, expires));
+            return new IssueTokenResult(accessToken, expires);
         }
     }
 }

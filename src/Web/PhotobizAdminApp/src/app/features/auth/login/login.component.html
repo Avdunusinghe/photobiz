@@ -1,0 +1,37 @@
+<div class="login-page">
+  <div class="login-panel">
+    <app-logo class="login-panel__logo" [size]="48" />
+
+    <p class="login-panel__subtitle">Sign in to manage your business</p>
+
+    @if (errorMessage(); as message) {
+      <div class="login-panel__error" role="alert">{{ message }}</div>
+    }
+
+    <form class="login-form" [formGroup]="form" (ngSubmit)="submit()">
+      <label class="login-form__label" for="username">Username</label>
+      <input
+        id="username"
+        class="login-form__input"
+        type="text"
+        formControlName="username"
+        autocomplete="username"
+        placeholder="Enter your username"
+      />
+
+      <label class="login-form__label" for="password">Password</label>
+      <input
+        id="password"
+        class="login-form__input"
+        type="password"
+        formControlName="password"
+        autocomplete="current-password"
+        placeholder="Enter your password"
+      />
+
+      <button class="login-form__submit" type="submit" [disabled]="form.invalid || isSubmitting()">
+        {{ isSubmitting() ? 'Signing in…' : 'Sign in' }}
+      </button>
+    </form>
+  </div>
+</div>

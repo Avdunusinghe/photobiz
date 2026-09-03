@@ -1,0 +1,50 @@
+@use 'tokens' as *;
+
+:host {
+  display: inline-flex;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-3;
+}
+
+.logo__badge {
+  fill: $color-navy-800;
+}
+
+.logo__glyph {
+  fill: $color-surface;
+}
+
+.logo__lens-ring {
+  fill: none;
+  stroke: $color-orange-600;
+  stroke-width: 2.5;
+}
+
+.logo__lens-dot {
+  fill: $color-orange-600;
+}
+
+.logo__wordmark {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.logo__name {
+  font-size: $font-size-lg;
+  font-weight: 700;
+  color: $color-navy-800;
+  letter-spacing: -0.01em;
+}
+
+.logo__tagline {
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $color-text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
