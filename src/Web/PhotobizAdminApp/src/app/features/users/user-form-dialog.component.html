@@ -1,0 +1,144 @@
+<div class="dialog-overlay" (click)="dismiss.emit()">
+  <div
+    class="dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="user-dialog-title"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="dialog__header">
+      <h2 class="dialog__title" id="user-dialog-title">
+        {{ isEdit ? 'Edit user' : 'Create user' }}
+      </h2>
+      <button class="dialog__close" type="button" aria-label="Close" (click)="dismiss.emit()">
+        <app-icon name="close" [size]="18" />
+      </button>
+    </header>
+
+    <form class="dialog__body" [formGroup]="form" (ngSubmit)="submit()">
+      @if (formError(); as message) {
+        <div class="dialog__alert" role="alert">{{ message }}</div>
+      }
+
+      <div class="field-grid">
+        <div class="field">
+          <label class="field__label" for="user-username">Username</label>
+          <input
+            id="user-username"
+            class="field__input"
+            type="text"
+            formControlName="username"
+            autocomplete="off"
+          />
+          @if (hasError('username')) {
+            <p class="field__error">Enter a username (max 256 characters).</p>
+          }
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="user-email">Email</label>
+          <input
+            id="user-email"
+            class="field__input"
+            type="email"
+            formControlName="email"
+            autocomplete="off"
+          />
+          @if (hasError('email')) {
+            <p class="field__error">Enter a valid email address.</p>
+          }
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="user-first-name">First name</label>
+          <input
+            id="user-first-name"
+            class="field__input"
+            type="text"
+            formControlName="firstName"
+          />
+          @if (hasError('firstName')) {
+            <p class="field__error">Enter a first name.</p>
+          }
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="user-last-name">Last name</label>
+          <input id="user-last-name" class="field__input" type="text" formControlName="lastName" />
+          @if (hasError('lastName')) {
+            <p class="field__error">Enter a last name.</p>
+          }
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="user-mobile">
+            Mobile number <span class="field__optional">— optional</span>
+          </label>
+          <input
+            id="user-mobile"
+            class="field__input"
+            type="tel"
+            formControlName="mobileNumber"
+            placeholder="+1 555 0100"
+          />
+          @if (hasError('mobileNumber')) {
+            <p class="field__error">Use 7–32 digits, optionally starting with “+”.</p>
+          }
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="user-password">
+            Password
+            @if (isEdit) {
+              <span class="field__optional">— leave blank to keep current</span>
+            }
+          </label>
+          <input
+            id="user-password"
+            class="field__input"
+            type="password"
+            formControlName="password"
+            autocomplete="new-password"
+          />
+          @if (hasError('password')) {
+            <p class="field__error">Password must be at least 8 characters.</p>
+          }
+        </div>
+      </div>
+
+      <fieldset class="field field--roles">
+        <legend class="field__label">Roles</legend>
+        <div class="role-options">
+          @for (role of allRoles; track role) {
+            <label class="role-option">
+              <input
+                type="checkbox"
+                [checked]="form.controls.roles.value.includes(role)"
+                (change)="toggleRole(role)"
+              />
+              <span>{{ role }}</span>
+            </label>
+          }
+        </div>
+        @if (form.controls.roles.invalid && form.controls.roles.touched) {
+          <p class="field__error">Select at least one role.</p>
+        }
+      </fieldset>
+
+      <label class="toggle">
+        <input type="checkbox" formControlName="isActive" />
+        <span class="toggle__track"><span class="toggle__thumb"></span></span>
+        <span class="toggle__label">{{
+          form.controls.isActive.value ? 'Active' : 'Inactive'
+        }}</span>
+      </label>
+
+      <footer class="dialog__footer">
+        <button class="btn btn--link" type="button" (click)="dismiss.emit()">Cancel</button>
+        <button class="btn btn--primary" type="submit" [disabled]="submitting()">
+          {{ submitting() ? 'Saving…' : isEdit ? 'Save changes' : 'Create user' }}
+        </button>
+      </footer>
+    </form>
+  </div>
+</div>

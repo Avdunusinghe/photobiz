@@ -1,0 +1,16 @@
+@use 'tokens' as *;
+
+:host {
+  display: block;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space-3 $space-6;
+  background: $color-surface;
+  border-top: 1px solid $color-border;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+}

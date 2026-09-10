@@ -1,0 +1,19 @@
+@use 'tokens' as *;
+
+.placeholder {
+  padding: $space-10 $space-6;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.placeholder__title {
+  margin: 0 0 $space-2;
+  font-size: $font-size-xl;
+  font-weight: 700;
+  color: $color-navy-800;
+}
+
+.placeholder__message {
+  margin: 0;
+  color: $color-text-secondary;
+}

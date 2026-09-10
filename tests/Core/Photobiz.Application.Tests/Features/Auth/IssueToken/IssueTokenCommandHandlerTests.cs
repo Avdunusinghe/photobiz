@@ -45,6 +45,10 @@ namespace Photobiz.Application.Tests.Features.Auth.IssueToken
                 Id = Guid.NewGuid(),
                 Username = username,
                 PasswordHash = string.Empty,
+                FirstName = "Test",
+                LastName = "User",
+                Email = $"{username}@example.com",
+                IsActive = true,
                 CreatedAt = DateTime.UtcNow
             };
             user.PasswordHash = _passwordHasher.HashPassword(user, password);
@@ -142,6 +146,17 @@ namespace Photobiz.Application.Tests.Features.Auth.IssueToken
                 _handler.Handle(new IssueTokenCommand("someone", "wrong-password"), CancellationToken.None));
         }
 
+        [Fact]
+        public async Task Handle_WithSoftDeletedUser_ThrowsAuthenticationFailedException()
+        {
+            var user = await CreateUserAsync("someone", "correct-password", RoleNames.Admin);
+            user.IsActive = false;
+            await _dbContext.SaveChangesAsync();
+
+            await Assert.ThrowsAsync<AuthenticationFailedException>(() =>
+                _handler.Handle(new IssueTokenCommand("someone", "correct-password"), CancellationToken.None));
+        }
+
         private class TestDbContext : DbContext, IApplicationDbContext
         {
             public TestDbContext(DbContextOptions<TestDbContext> options) : base(options)
@@ -167,6 +182,7 @@ namespace Photobiz.Application.Tests.Features.Auth.IssueToken
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<UserRole>().HasKey(x => new { x.UserId, x.RoleId });
+                modelBuilder.Entity<User>().HasQueryFilter(x => x.IsActive);
             }
         }
     }

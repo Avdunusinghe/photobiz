@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Photobiz.Application.Common.Interfaces;
+using Photobiz.Domain.Common;
 using Photobiz.Domain.Entities;
 
 namespace Photobiz.Infrastructure.Persistence
@@ -29,6 +30,18 @@ namespace Photobiz.Infrastructure.Persistence
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(PhotobizDbContext).Assembly);
+
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes()
+                .Where(type => typeof(AuditableEntity).IsAssignableFrom(type.ClrType)))
+            {
+                modelBuilder.Entity(entityType.ClrType)
+                    .Property(nameof(AuditableEntity.CreatedBy))
+                    .HasMaxLength(256);
+
+                modelBuilder.Entity(entityType.ClrType)
+                    .Property(nameof(AuditableEntity.UpdatedBy))
+                    .HasMaxLength(256);
+            }
         }
     }
 }

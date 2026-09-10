@@ -36,6 +36,16 @@ namespace Photobiz.Api.ExceptionHandling
                 return await HandleAuthenticationFailedExceptionAsync(httpContext, authenticationFailedException);
             }
 
+            if (exception is NotFoundException notFoundException)
+            {
+                return await HandleNotFoundExceptionAsync(httpContext, notFoundException);
+            }
+
+            if (exception is ConflictException conflictException)
+            {
+                return await HandleConflictExceptionAsync(httpContext, conflictException);
+            }
+
             _logger.LogError(exception, "Unhandled exception processing {Method} {Path}",
                 httpContext.Request.Method, httpContext.Request.Path);
 
@@ -107,6 +117,52 @@ namespace Photobiz.Api.ExceptionHandling
             {
                 HttpContext = httpContext,
                 Exception = authenticationFailedException,
+                ProblemDetails = problemDetails
+            });
+        }
+
+        private async ValueTask<bool> HandleNotFoundExceptionAsync(
+            HttpContext httpContext,
+            NotFoundException notFoundException)
+        {
+            httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+
+            var problemDetails = new ProblemDetails
+            {
+                Status = StatusCodes.Status404NotFound,
+                Title = "Resource not found.",
+                Detail = notFoundException.Message,
+                Type = "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+                Instance = httpContext.Request.Path
+            };
+
+            return await _problemDetailsService.TryWriteAsync(new ProblemDetailsContext
+            {
+                HttpContext = httpContext,
+                Exception = notFoundException,
+                ProblemDetails = problemDetails
+            });
+        }
+
+        private async ValueTask<bool> HandleConflictExceptionAsync(
+            HttpContext httpContext,
+            ConflictException conflictException)
+        {
+            httpContext.Response.StatusCode = StatusCodes.Status409Conflict;
+
+            var problemDetails = new ProblemDetails
+            {
+                Status = StatusCodes.Status409Conflict,
+                Title = "Request conflicts with the current state of the resource.",
+                Detail = conflictException.Message,
+                Type = "https://tools.ietf.org/html/rfc9110#section-15.5.10",
+                Instance = httpContext.Request.Path
+            };
+
+            return await _problemDetailsService.TryWriteAsync(new ProblemDetailsContext
+            {
+                HttpContext = httpContext,
+                Exception = conflictException,
                 ProblemDetails = problemDetails
             });
         }

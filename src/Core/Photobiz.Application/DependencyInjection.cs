@@ -1,5 +1,6 @@
 using FluentValidation;
 using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,8 +25,10 @@ namespace Photobiz.Application
             });
             services.AddValidatorsFromAssemblyContaining<ApplicationAssemblyMarker>();
 
-            TypeAdapterConfig.GlobalSettings.Scan(typeof(ApplicationAssemblyMarker).Assembly);
-            services.AddMapster();
+            var mapsterConfig = TypeAdapterConfig.GlobalSettings;
+            mapsterConfig.Scan(typeof(ApplicationAssemblyMarker).Assembly);
+            services.AddSingleton(mapsterConfig);
+            services.AddScoped<IMapper, ServiceMapper>();
 
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 

@@ -1,0 +1,62 @@
+<svg
+  [attr.width]="size()"
+  [attr.height]="size()"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.8"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+>
+  @switch (name()) {
+    @case ('dashboard') {
+      <path d="M4 12 12 5l8 7" />
+      <path d="M6 10.5V19a1 1 0 0 0 1 1h3v-5h4v5h3a1 1 0 0 0 1-1v-8.5" />
+    }
+    @case ('calendar') {
+      <rect x="3.5" y="5" width="17" height="15" rx="2" />
+      <path d="M3.5 9.5h17" />
+      <path d="M8 3v4" />
+      <path d="M16 3v4" />
+    }
+    @case ('gallery') {
+      <rect x="3.5" y="4.5" width="17" height="15" rx="2" />
+      <circle cx="9" cy="10" r="1.75" />
+      <path d="M20 16l-5.5-5.5L6 19" />
+    }
+    @case ('users') {
+      <circle cx="8.5" cy="8.5" r="3" />
+      <path d="M3 19a5.5 5.5 0 0 1 11 0" />
+      <circle cx="16.5" cy="8" r="2.25" />
+      <path d="M15 13.2a4.5 4.5 0 0 1 5.5 4.3" />
+    }
+    @case ('settings') {
+      <circle cx="12" cy="12" r="3" />
+      <path
+        d="M12 3v2.5M12 18.5V21M21 12h-2.5M5.5 12H3M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8M18.4 18.4l-1.8-1.8M7.4 7.4 5.6 5.6"
+      />
+    }
+    @case ('chevron') {
+      <path d="M9 6l6 6-6 6" />
+    }
+    @case ('search') {
+      <circle cx="11" cy="11" r="6" />
+      <path d="M20 20l-4.35-4.35" />
+    }
+    @case ('refresh') {
+      <path d="M20 11a8 8 0 0 0-13.66-5.66L4 7" />
+      <path d="M4 4v3h3" />
+      <path d="M4 13a8 8 0 0 0 13.66 5.66L20 17" />
+      <path d="M20 20v-3h-3" />
+    }
+    @case ('plus') {
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    }
+    @case ('close') {
+      <path d="M6 6l12 12" />
+      <path d="M18 6 6 18" />
+    }
+  }
+</svg>

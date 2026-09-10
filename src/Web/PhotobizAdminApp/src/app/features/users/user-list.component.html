@@ -1,0 +1,279 @@
+<div class="page">
+  <header class="page__header">
+    <div>
+      <h1 class="page__title">Users</h1>
+      <p class="page__description">
+        Manage the people who can sign in to the admin console and the roles assigned to them.
+      </p>
+    </div>
+    <div class="page__actions">
+      <button class="btn btn--normal" type="button" (click)="refresh()" [disabled]="loading()">
+        <app-icon name="refresh" [size]="16" />
+        Refresh
+      </button>
+      <button class="btn btn--primary" type="button" (click)="openCreate()">
+        <app-icon name="plus" [size]="16" />
+        Create user
+      </button>
+    </div>
+  </header>
+
+  @if (flash(); as message) {
+    <div class="flash flash--success" role="status">
+      <span>{{ message }}</span>
+      <button class="flash__dismiss" type="button" aria-label="Dismiss" (click)="dismissFlash()">
+        <app-icon name="close" [size]="14" />
+      </button>
+    </div>
+  }
+
+  @if (error(); as message) {
+    <div class="flash flash--error" role="alert">
+      <span>{{ message }}</span>
+      <button class="btn btn--link" type="button" (click)="refresh()">Retry</button>
+    </div>
+  }
+
+  <section class="container">
+    <div class="container__tools">
+      <div class="container__heading">
+        <h2 class="container__title">Users</h2>
+        <span class="container__counter">({{ totalCount() }})</span>
+      </div>
+      <div class="container__tool-actions">
+        <button
+          class="btn btn--normal"
+          type="button"
+          (click)="openEdit()"
+          [disabled]="!selectedUser()"
+        >
+          Edit
+        </button>
+        <button
+          class="btn btn--normal"
+          type="button"
+          (click)="askDelete()"
+          [disabled]="!selectedUser()"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+
+    <div class="filters">
+      <div class="filters__search">
+        <app-icon name="search" [size]="16" />
+        <input
+          type="search"
+          class="filters__search-input"
+          placeholder="Find users by name, username, email or phone"
+          [formControl]="searchControl"
+          aria-label="Search users"
+        />
+      </div>
+
+      <label class="filters__select">
+        <span class="filters__select-label">Role</span>
+        <select
+          [value]="roleFilter()"
+          (change)="setRoleFilter($any($event.target).value)"
+          aria-label="Filter by role"
+        >
+          <option value="">Any role</option>
+          @for (role of roles; track role) {
+            <option [value]="role">{{ role }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="filters__select">
+        <span class="filters__select-label">Status</span>
+        <select
+          [value]="statusFilter()"
+          (change)="setStatusFilter($any($event.target).value)"
+          aria-label="Filter by status"
+        >
+          <option value="any">Any status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </label>
+
+      @if (hasFilters()) {
+        <button class="btn btn--link" type="button" (click)="clearFilters()">Clear filters</button>
+      }
+    </div>
+
+    <div class="table-wrap" [class.table-wrap--busy]="loading()">
+      <table class="table">
+        <thead>
+          <tr>
+            <th class="table__select" scope="col"><span class="sr-only">Select</span></th>
+            <th scope="col">Username</th>
+            <th scope="col">Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Mobile</th>
+            <th scope="col">Roles</th>
+            <th scope="col">Status</th>
+            <th scope="col">Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users(); track user.id) {
+            <tr
+              class="table__row"
+              [class.table__row--selected]="selectedId() === user.id"
+              (click)="toggleSelection(user)"
+            >
+              <td class="table__select">
+                <input
+                  type="radio"
+                  name="selected-user"
+                  [checked]="selectedId() === user.id"
+                  (click)="$event.stopPropagation(); toggleSelection(user)"
+                  [attr.aria-label]="'Select ' + user.username"
+                />
+              </td>
+              <td>
+                <button
+                  class="link-button"
+                  type="button"
+                  (click)="$event.stopPropagation(); toggleSelection(user)"
+                >
+                  {{ user.username }}
+                </button>
+              </td>
+              <td>{{ fullName(user) || '—' }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.mobileNumber || '—' }}</td>
+              <td>
+                <span class="pill-group">
+                  @for (role of user.roles; track role) {
+                    <span class="pill">{{ role }}</span>
+                  } @empty {
+                    <span class="table__muted">—</span>
+                  }
+                </span>
+              </td>
+              <td>
+                <span class="status" [class.status--inactive]="!user.isActive">
+                  <span class="status__dot"></span>
+                  {{ user.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td class="table__muted">{{ user.createdAt | date: 'medium' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      @if (loading() && users().length === 0) {
+        <div class="state">
+          <span class="spinner" aria-hidden="true"></span>
+          <p>Loading users…</p>
+        </div>
+      } @else if (loaded() && users().length === 0 && !error()) {
+        <div class="state">
+          @if (hasFilters()) {
+            <p class="state__title">No matching users</p>
+            <p class="state__hint">Try adjusting or clearing your filters.</p>
+            <button class="btn btn--normal" type="button" (click)="clearFilters()">
+              Clear filters
+            </button>
+          } @else {
+            <p class="state__title">No users yet</p>
+            <p class="state__hint">Create the first user to get started.</p>
+            <button class="btn btn--primary" type="button" (click)="openCreate()">
+              <app-icon name="plus" [size]="16" />
+              Create user
+            </button>
+          }
+        </div>
+      }
+
+      @if (loading() && users().length > 0) {
+        <div class="table-wrap__overlay"><span class="spinner" aria-hidden="true"></span></div>
+      }
+    </div>
+
+    @if (totalCount() > 0) {
+      <div class="pagination">
+        <div class="pagination__summary">
+          {{ rangeStart() }}–{{ rangeEnd() }} of {{ totalCount() }}
+        </div>
+        <label class="pagination__size">
+          Page size
+          <select
+            [value]="pageSize()"
+            (change)="setPageSize(+$any($event.target).value)"
+            aria-label="Page size"
+          >
+            @for (size of pageSizeOptions; track size) {
+              <option [value]="size">{{ size }}</option>
+            }
+          </select>
+        </label>
+        <div class="pagination__pager">
+          <button
+            class="pagination__btn"
+            type="button"
+            aria-label="Previous page"
+            (click)="previousPage()"
+            [disabled]="pageNumber() <= 1 || loading()"
+          >
+            <app-icon name="chevron" [size]="16" class="pagination__chevron--prev" />
+          </button>
+          <span class="pagination__current">{{ pageNumber() }} / {{ totalPages() }}</span>
+          <button
+            class="pagination__btn"
+            type="button"
+            aria-label="Next page"
+            (click)="nextPage()"
+            [disabled]="pageNumber() >= totalPages() || loading()"
+          >
+            <app-icon name="chevron" [size]="16" />
+          </button>
+        </div>
+      </div>
+    }
+  </section>
+</div>
+
+@if (dialogMode() !== 'closed') {
+  <app-user-form-dialog
+    [mode]="formMode()"
+    [user]="selectedUser()"
+    (saved)="onDialogSaved($event)"
+    (dismiss)="closeDialog()"
+  />
+}
+
+@if (confirmingDelete() && selectedUser(); as user) {
+  <div class="dialog-overlay" (click)="cancelDelete()">
+    <div
+      class="confirm"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="confirm-title"
+      (click)="$event.stopPropagation()"
+    >
+      <h2 class="confirm__title" id="confirm-title">Delete user</h2>
+      <p class="confirm__body">
+        Delete <strong>{{ user.username }}</strong
+        >? They lose access to the console immediately and no longer appear in this list. Their role
+        assignments are kept so the account can be restored later.
+      </p>
+      <div class="confirm__actions">
+        <button class="btn btn--link" type="button" (click)="cancelDelete()">Cancel</button>
+        <button
+          class="btn btn--danger"
+          type="button"
+          (click)="confirmDelete()"
+          [disabled]="deleting()"
+        >
+          {{ deleting() ? 'Deleting…' : 'Delete' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

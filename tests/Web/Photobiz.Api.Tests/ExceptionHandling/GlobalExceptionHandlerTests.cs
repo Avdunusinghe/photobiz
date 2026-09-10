@@ -114,5 +114,43 @@ namespace Photobiz.Api.Tests.ExceptionHandling
             Assert.Equal(StatusCodes.Status401Unauthorized, httpContext.Response.StatusCode);
             Assert.Equal(StatusCodes.Status401Unauthorized, captured!.ProblemDetails.Status);
         }
+
+        [Fact]
+        public async Task TryHandleAsync_WithNotFoundException_Returns404WithDetail()
+        {
+            var (handler, problemDetailsService) = CreateHandler(Environments.Production);
+            var httpContext = new DefaultHttpContext();
+            ProblemDetailsContext? captured = null;
+            problemDetailsService
+                .TryWriteAsync(Arg.Do<ProblemDetailsContext>(ctx => captured = ctx))
+                .Returns(true);
+
+            var handled = await handler.TryHandleAsync(
+                httpContext, new NotFoundException("User was not found."), CancellationToken.None);
+
+            Assert.True(handled);
+            Assert.Equal(StatusCodes.Status404NotFound, httpContext.Response.StatusCode);
+            Assert.Equal(StatusCodes.Status404NotFound, captured!.ProblemDetails.Status);
+            Assert.Equal("User was not found.", captured.ProblemDetails.Detail);
+        }
+
+        [Fact]
+        public async Task TryHandleAsync_WithConflictException_Returns409WithDetail()
+        {
+            var (handler, problemDetailsService) = CreateHandler(Environments.Production);
+            var httpContext = new DefaultHttpContext();
+            ProblemDetailsContext? captured = null;
+            problemDetailsService
+                .TryWriteAsync(Arg.Do<ProblemDetailsContext>(ctx => captured = ctx))
+                .Returns(true);
+
+            var handled = await handler.TryHandleAsync(
+                httpContext, new ConflictException("A user with username 'admin' already exists."), CancellationToken.None);
+
+            Assert.True(handled);
+            Assert.Equal(StatusCodes.Status409Conflict, httpContext.Response.StatusCode);
+            Assert.Equal(StatusCodes.Status409Conflict, captured!.ProblemDetails.Status);
+            Assert.Equal("A user with username 'admin' already exists.", captured.ProblemDetails.Detail);
+        }
     }
 }

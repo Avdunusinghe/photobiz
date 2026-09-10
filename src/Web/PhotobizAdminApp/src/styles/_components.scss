@@ -1,0 +1,104 @@
+@use 'tokens' as *;
+
+/* Shared primitives used across admin feature pages (buttons, modal scrim, spinner). */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-2 $space-4;
+  border-radius: $radius-md;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+}
+
+.btn--primary {
+  border: 1px solid $color-orange-600;
+  background: $color-orange-600;
+  color: $color-text-inverse;
+
+  &:hover:not(:disabled) {
+    background: $color-orange-700;
+    border-color: $color-orange-700;
+  }
+}
+
+.btn--normal {
+  border: 1px solid $color-border-strong;
+  background: $color-surface;
+  color: $color-navy-800;
+
+  &:hover:not(:disabled) {
+    background: #f4f6f6;
+  }
+}
+
+.btn--link {
+  border: 1px solid transparent;
+  background: transparent;
+  color: $color-focus-ring;
+  font-weight: 600;
+
+  &:hover:not(:disabled) {
+    background: #f1faff;
+  }
+}
+
+.btn--danger {
+  border: 1px solid $color-error;
+  background: $color-error;
+  color: $color-text-inverse;
+
+  &:hover:not(:disabled) {
+    background: #b02b0f;
+    border-color: #b02b0f;
+  }
+}
+
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: $space-10 $space-4;
+  background: rgba(22, 25, 31, 0.45);
+  overflow-y: auto;
+}
+
+.spinner {
+  width: 22px;
+  height: 22px;
+  border: 2px solid $color-border;
+  border-top-color: $color-focus-ring;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -10,6 +10,9 @@
   <Folder Name="/tests/Core/">
     <Project Path="tests/Core/Photobiz.Application.Tests/Photobiz.Application.Tests.csproj" />
   </Folder>
+  <Folder Name="/tests/Infrastructure/">
+    <Project Path="tests/Infrastructure/Photobiz.Infrastructure.Tests/Photobiz.Infrastructure.Tests.csproj" />
+  </Folder>
   <Folder Name="/tests/Web/">
     <Project Path="tests/Web/Photobiz.Api.Tests/Photobiz.Api.Tests.csproj" />
   </Folder>

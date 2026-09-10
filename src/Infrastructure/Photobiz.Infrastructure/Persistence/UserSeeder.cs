@@ -28,7 +28,12 @@ namespace Photobiz.Infrastructure.Persistence
                 Id = Guid.NewGuid(),
                 Username = DefaultUsername,
                 PasswordHash = string.Empty,
-                CreatedAt = DateTime.UtcNow,
+                FirstName = "System",
+                LastName = "Administrator",
+                Email = "admin@photobiz.local",
+                MobileNumber = null,
+                IsActive = true,
+                // CreatedAt / CreatedBy are stamped by AuditableEntityInterceptor on save.
             };
             user.PasswordHash = passwordHasher.HashPassword(user, DefaultPassword);
 

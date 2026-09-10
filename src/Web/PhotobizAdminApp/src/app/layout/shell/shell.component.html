@@ -1,0 +1,14 @@
+<div class="shell">
+  <header class="shell__topbar">
+    <app-logo [size]="32" [iconOnly]="true" />
+    <button class="shell__sign-out" type="button" (click)="signOut()">Sign out</button>
+  </header>
+
+  <app-sidebar class="shell__sidebar" [items]="navItems" [currentUrl]="currentUrl()" />
+
+  <main class="shell__content">
+    <router-outlet />
+  </main>
+
+  <app-footer class="shell__footer" />
+</div>

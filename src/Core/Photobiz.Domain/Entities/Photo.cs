@@ -1,6 +1,8 @@
+using Photobiz.Domain.Common;
+
 namespace Photobiz.Domain.Entities
 {
-    public class Photo
+    public class Photo : AuditableEntity
     {
         public Guid Id { get; set; }
 
@@ -11,8 +13,6 @@ namespace Photobiz.Domain.Entities
         public required string FullUrl { get; set; }
 
         public string? AltText { get; set; }
-
-        public DateTime CreatedAt { get; set; }
 
         public Guid GalleryId { get; set; }
 

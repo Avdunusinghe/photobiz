@@ -1,0 +1,51 @@
+@use 'tokens' as *;
+
+.shell {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    'topbar topbar'
+    'sidebar content'
+    'footer footer';
+  min-height: 100vh;
+}
+
+.shell__topbar {
+  grid-area: topbar;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space-3 $space-6;
+  background: $color-navy-800;
+}
+
+.shell__sign-out {
+  padding: $space-2 $space-4;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: $radius-md;
+  background: transparent;
+  color: $color-text-inverse;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.shell__sidebar {
+  grid-area: sidebar;
+}
+
+.shell__content {
+  grid-area: content;
+  background: $color-page-bg;
+  overflow-y: auto;
+}
+
+.shell__footer {
+  grid-area: footer;
+}

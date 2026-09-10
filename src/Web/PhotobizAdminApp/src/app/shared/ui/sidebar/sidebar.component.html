@@ -1,0 +1,66 @@
+<aside class="sidebar" [class.sidebar--collapsed]="collapsed()">
+  <nav class="sidebar__nav">
+    @for (item of items(); track item.label) {
+      @if (item.children) {
+        <div class="nav-group">
+          <button
+            type="button"
+            class="nav-item nav-item--group"
+            [class.nav-item--active]="isGroupActive(item)"
+            [title]="item.label"
+            (click)="toggleGroup(item.label)"
+          >
+            <app-icon [name]="item.icon" [size]="18" class="nav-item__icon" />
+            @if (!collapsed()) {
+              <span class="nav-item__label">{{ item.label }}</span>
+              <app-icon
+                name="chevron"
+                [size]="14"
+                class="nav-item__chevron"
+                [class.nav-item__chevron--expanded]="isGroupExpanded(item.label)"
+              />
+            }
+          </button>
+
+          @if (isGroupExpanded(item.label) && !collapsed()) {
+            <div class="nav-children">
+              @for (child of item.children; track child.route) {
+                <a
+                  class="nav-item nav-item--child"
+                  [routerLink]="child.route"
+                  [class.nav-item--active]="isActive(child.route)"
+                >
+                  <span class="nav-item__label">{{ child.label }}</span>
+                </a>
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <a
+          class="nav-item"
+          [routerLink]="item.route"
+          [class.nav-item--active]="isActive(item.route!)"
+          [title]="item.label"
+        >
+          <app-icon [name]="item.icon" [size]="18" class="nav-item__icon" />
+          @if (!collapsed()) {
+            <span class="nav-item__label">{{ item.label }}</span>
+          }
+        </a>
+      }
+    }
+  </nav>
+
+  <button type="button" class="sidebar__toggle" (click)="toggleCollapsed()">
+    <app-icon
+      name="chevron"
+      [size]="16"
+      class="sidebar__toggle-icon"
+      [class.sidebar__toggle-icon--pointing-left]="!collapsed()"
+    />
+    @if (!collapsed()) {
+      <span>Collapse</span>
+    }
+  </button>
+</aside>

@@ -1,14 +1,14 @@
+using Photobiz.Domain.Common;
+
 namespace Photobiz.Domain.Entities
 {
-    public class Gallery
+    public class Gallery : AuditableEntity
     {
         public Guid Id { get; set; }
 
         public required string Title { get; set; }
 
         public string? Description { get; set; }
-
-        public DateTime CreatedAt { get; set; }
 
         public Guid UserId { get; set; }
 
