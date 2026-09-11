@@ -185,7 +185,7 @@ export class UserListComponent {
   }
 
   protected askDelete(): void {
-    if (this.selectedUser()) {
+    if (this.selectedUser()?.isActive) {
       this.confirmingDelete.set(true);
     }
   }

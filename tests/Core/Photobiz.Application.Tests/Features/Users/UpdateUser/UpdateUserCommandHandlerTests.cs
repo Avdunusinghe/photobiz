@@ -84,6 +84,24 @@ namespace Photobiz.Application.Tests.Features.Users.UpdateUser
         }
 
         [Fact]
+        public async Task Handle_CanReactivateADeactivatedUser()
+        {
+            var roles = UsersTestData.SeedRoles(_dbContext);
+            var user = UsersTestData.AddUser(_dbContext, roles, "user", isActive: false, RoleNames.Admin);
+
+            var result = await _handler.Handle(
+                Command(user.Id, isActive: true),
+                CancellationToken.None);
+
+            Assert.True(result.Success);
+            Assert.True(result.Data!.IsActive);
+
+            // Reactivated, so it's visible again through the default (filtered) query.
+            var stored = await _dbContext.Users.SingleAsync(x => x.Id == user.Id);
+            Assert.True(stored.IsActive);
+        }
+
+        [Fact]
         public async Task Handle_WithBlankMobileNumber_StoresNull()
         {
             var roles = UsersTestData.SeedRoles(_dbContext);

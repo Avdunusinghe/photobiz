@@ -29,8 +29,10 @@ namespace Photobiz.Application.Tests.Features.Users.GetUsers
         }
 
         [Fact]
-        public async Task Handle_ExcludesSoftDeletedUsers()
+        public async Task Handle_IncludesSoftDeletedUsersByDefault()
         {
+            // The admin list is the one place deactivated/soft-deleted users must still be visible
+            // and manageable (e.g. to reactivate them), so it bypasses the global IsActive filter.
             var roles = UsersTestData.SeedRoles(_dbContext);
             UsersTestData.AddUser(_dbContext, roles, "kept", RoleNames.Admin);
             var removed = UsersTestData.AddUser(_dbContext, roles, "removed", RoleNames.Admin);
@@ -38,8 +40,8 @@ namespace Photobiz.Application.Tests.Features.Users.GetUsers
 
             var result = await _handler.Handle(new GetUsersQuery(), CancellationToken.None);
 
-            Assert.Equal(1, result.TotalCount);
-            Assert.Equal("kept", Assert.Single(result.Items).Username);
+            Assert.Equal(2, result.TotalCount);
+            Assert.Equal(["kept", "removed"], result.Items.Select(x => x.Username));
         }
 
         [Fact]
@@ -74,15 +76,19 @@ namespace Photobiz.Application.Tests.Features.Users.GetUsers
         }
 
         [Fact]
-        public async Task Handle_NeverReturnsDeactivatedUsers()
+        public async Task Handle_WithIsActiveFilter_ReturnsOnlyMatchingUsers()
         {
             var roles = UsersTestData.SeedRoles(_dbContext);
             UsersTestData.AddUser(_dbContext, roles, "active-user", isActive: true, RoleNames.Admin);
             UsersTestData.AddUser(_dbContext, roles, "disabled-user", isActive: false, RoleNames.Admin);
 
-            var result = await _handler.Handle(new GetUsersQuery(), CancellationToken.None);
+            var active = await _handler.Handle(new GetUsersQuery(IsActive: true), CancellationToken.None);
+            var disabled = await _handler.Handle(new GetUsersQuery(IsActive: false), CancellationToken.None);
+            var all = await _handler.Handle(new GetUsersQuery(), CancellationToken.None);
 
-            Assert.Equal("active-user", Assert.Single(result.Items).Username);
+            Assert.Equal("active-user", Assert.Single(active.Items).Username);
+            Assert.Equal("disabled-user", Assert.Single(disabled.Items).Username);
+            Assert.Equal(2, all.TotalCount);
         }
 
         [Fact]

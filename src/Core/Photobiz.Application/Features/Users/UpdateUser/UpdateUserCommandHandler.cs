@@ -28,7 +28,10 @@ namespace Photobiz.Application.Features.Users.UpdateUser
 
         public async Task<ResultDto<UserDto>> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
         {
+            // Bypass the global IsActive filter so a deactivated (soft-deleted) user can still be
+            // opened and, by setting IsActive back to true, reactivated.
             var user = await _dbContext.Users
+                .IgnoreQueryFilters()
                 .Include(x => x.UserRoles)
                 .ThenInclude(x => x.Role)
                 .SingleOrDefaultAsync(x => x.Id == request.Id, cancellationToken);

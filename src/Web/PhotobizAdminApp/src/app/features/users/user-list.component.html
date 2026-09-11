@@ -53,7 +53,7 @@
           class="btn btn--normal"
           type="button"
           (click)="askDelete()"
-          [disabled]="!selectedUser()"
+          [disabled]="!selectedUser() || !selectedUser()!.isActive"
         >
           Delete
         </button>
@@ -260,8 +260,8 @@
       <h2 class="confirm__title" id="confirm-title">Delete user</h2>
       <p class="confirm__body">
         Delete <strong>{{ user.username }}</strong
-        >? They lose access to the console immediately and no longer appear in this list. Their role
-        assignments are kept so the account can be restored later.
+        >? They lose access to the console immediately and are marked Inactive. Their record and
+        role assignments are kept — filter by status to find them again and reactivate via Edit.
       </p>
       <div class="confirm__actions">
         <button class="btn btn--link" type="button" (click)="cancelDelete()">Cancel</button>

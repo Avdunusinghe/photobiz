@@ -23,7 +23,10 @@ namespace Photobiz.Application.Features.Users.GetUsers
             var pageNumber = request.PageNumber < 1 ? 1 : request.PageNumber;
             var pageSize = request.PageSize < 1 ? 20 : request.PageSize;
 
-            var query = _dbContext.Users.AsNoTracking();
+            // The admin user list is the one place deactivated (soft-deleted) users must still be
+            // visible and manageable, so it bypasses the global IsActive query filter and instead
+            // exposes IsActive as an explicit, filterable column.
+            var query = _dbContext.Users.IgnoreQueryFilters().AsNoTracking();
 
             if (!string.IsNullOrWhiteSpace(request.SearchText))
             {

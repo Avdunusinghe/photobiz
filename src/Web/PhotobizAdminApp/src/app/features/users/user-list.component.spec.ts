@@ -134,6 +134,21 @@ describe('UserListComponent', () => {
     expect(instance['selectedId']()).toBeNull();
   });
 
+  it('does not open the delete confirmation for an already-inactive user', () => {
+    const inactiveUser = makeUser({ username: 'already-gone', isActive: false });
+    userService.getUsers.mockReturnValue(of(makePage([inactiveUser])));
+
+    const fixture = render();
+    const instance = fixture.componentInstance;
+
+    instance['toggleSelection'](inactiveUser);
+    instance['askDelete']();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.confirm')).toBeFalsy();
+    expect(userService.deleteUser).not.toHaveBeenCalled();
+  });
+
   it('surfaces an error banner when loading fails', () => {
     userService.getUsers.mockReturnValue(
       throwError(() => ({ status: 500, error: { title: 'Boom' } })),
