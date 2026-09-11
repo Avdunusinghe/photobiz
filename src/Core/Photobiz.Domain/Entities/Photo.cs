@@ -2,10 +2,8 @@ using Photobiz.Domain.Common;
 
 namespace Photobiz.Domain.Entities
 {
-    public class Photo : AuditableEntity
+    public class Photo : AuditableEntity<Guid>
     {
-        public Guid Id { get; set; }
-
         public required string ThumbnailUrl { get; set; }
 
         public required string MediumUrl { get; set; }

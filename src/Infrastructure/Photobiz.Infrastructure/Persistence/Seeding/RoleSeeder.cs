@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Photobiz.Domain.Entities;
+using Photobiz.Infrastructure.Persistence;
 
-namespace Photobiz.Infrastructure.Persistence
+namespace Photobiz.Infrastructure.Persistence.Seeding
 {
     public static class RoleSeeder
     {

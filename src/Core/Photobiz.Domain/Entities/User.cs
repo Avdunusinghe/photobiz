@@ -2,10 +2,8 @@ using Photobiz.Domain.Common;
 
 namespace Photobiz.Domain.Entities
 {
-    public class User : AuditableEntity
+    public class User : AuditableEntity<Guid>
     {
-        public Guid Id { get; set; }
-
         public required string Username { get; set; }
 
         public required string PasswordHash { get; set; }

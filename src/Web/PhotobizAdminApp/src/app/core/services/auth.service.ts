@@ -14,9 +14,13 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly tokenService = inject(TokenService);
 
-  login(username: string, password: string): Observable<void> {
+  login(tenantKey: string, username: string, password: string): Observable<void> {
     return this.http
-      .post<TokenResponse>(`${environment.apiUrl}/api/auth/token`, { username, password })
+      .post<TokenResponse>(`${environment.apiUrl}/api/auth/token`, {
+        tenantKey,
+        username,
+        password,
+      })
       .pipe(
         tap((response) => this.tokenService.setToken(response.accessToken)),
         map(() => undefined),

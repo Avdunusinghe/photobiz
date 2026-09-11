@@ -17,6 +17,7 @@ namespace Photobiz.Application
             IConfiguration configuration)
         {
             services.Configure<JwtSettings>(configuration.GetSection("Jwt"));
+            services.Configure<TenancySettings>(configuration.GetSection("Tenancy"));
 
             services.AddMediatR(cfg =>
             {

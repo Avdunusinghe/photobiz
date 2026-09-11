@@ -13,26 +13,36 @@ namespace Photobiz.Api.Extensions
             }
 
             using var scope = app.Services.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<PhotobizDbContext>();
             var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("DatabaseMigration");
 
+            // Master first: TenantSeeder (run right after this) needs it in place before it can
+            // register the dev tenant, and the tenant DbContext below is still pointed at its
+            // configured default connection string at this point (no request/middleware yet).
+            await MigrateAsync(scope.ServiceProvider.GetRequiredService<MasterDbContext>(), "Master", logger);
+            await MigrateAsync(scope.ServiceProvider.GetRequiredService<PhotobizDbContext>(), "Tenant (default)", logger);
+        }
+
+        private static async Task MigrateAsync(DbContext dbContext, string label, ILogger logger)
+        {
             var databaseExists = await dbContext.Database.CanConnectAsync();
             logger.LogInformation(
                 databaseExists
-                    ? "Database already exists."
-                    : "Database does not exist yet; it will be created.");
+                    ? "{Label} database already exists."
+                    : "{Label} database does not exist yet; it will be created.",
+                label);
 
             var pendingMigrations = (await dbContext.Database.GetPendingMigrationsAsync()).ToList();
 
             if (pendingMigrations.Count == 0)
             {
-                logger.LogInformation("Database is up to date, no migrations to apply.");
+                logger.LogInformation("{Label} database is up to date, no migrations to apply.", label);
                 return;
             }
 
             logger.LogInformation(
-                "Applying {Count} pending migration(s): {Migrations}",
+                "Applying {Count} pending {Label} migration(s): {Migrations}",
                 pendingMigrations.Count,
+                label,
                 string.Join(", ", pendingMigrations));
 
             // Creates the database if it doesn't exist yet, then applies every pending migration.

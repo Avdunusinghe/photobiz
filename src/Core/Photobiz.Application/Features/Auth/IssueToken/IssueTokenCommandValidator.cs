@@ -6,6 +6,10 @@ namespace Photobiz.Application.Features.Auth.IssueToken
     {
         public IssueTokenCommandValidator()
         {
+            RuleFor(x => x.TenantKey)
+                .NotEmpty()
+                .MaximumLength(128);
+
             RuleFor(x => x.Username)
                 .NotEmpty()
                 .MaximumLength(256);

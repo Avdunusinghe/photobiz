@@ -21,6 +21,7 @@ export class LoginComponent {
   protected readonly errorMessage = signal<string | null>(null);
 
   protected readonly form = this.formBuilder.nonNullable.group({
+    tenantKey: ['', [Validators.required]],
     username: ['', [Validators.required]],
     password: ['', [Validators.required]],
   });
@@ -33,9 +34,9 @@ export class LoginComponent {
     this.isSubmitting.set(true);
     this.errorMessage.set(null);
 
-    const { username, password } = this.form.getRawValue();
+    const { tenantKey, username, password } = this.form.getRawValue();
 
-    this.authService.login(username, password).subscribe({
+    this.authService.login(tenantKey, username, password).subscribe({
       next: () => {
         this.isSubmitting.set(false);
         this.router.navigateByUrl('/dashboard');
@@ -43,9 +44,9 @@ export class LoginComponent {
       error: (error: HttpErrorResponse) => {
         this.isSubmitting.set(false);
         this.errorMessage.set(
-          error.status === 400
-            ? 'Enter a username and password.'
-            : 'Incorrect username or password.',
+          error.status === 401
+            ? 'Incorrect username or password.'
+            : 'Check your workspace code and try again.',
         );
       },
     });

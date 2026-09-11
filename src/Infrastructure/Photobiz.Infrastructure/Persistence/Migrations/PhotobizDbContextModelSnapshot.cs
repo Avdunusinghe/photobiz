@@ -65,7 +65,7 @@ namespace Photobiz.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("SessionTypeId");
 
-                    b.ToTable("Bookings");
+                    b.ToTable("Bookings", (string)null);
                 });
 
             modelBuilder.Entity("Photobiz.Domain.Entities.Client", b =>
@@ -107,7 +107,7 @@ namespace Photobiz.Infrastructure.Persistence.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Clients");
+                    b.ToTable("Clients", (string)null);
                 });
 
             modelBuilder.Entity("Photobiz.Domain.Entities.Gallery", b =>
@@ -146,7 +146,7 @@ namespace Photobiz.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Galleries");
+                    b.ToTable("Galleries", (string)null);
                 });
 
             modelBuilder.Entity("Photobiz.Domain.Entities.Photo", b =>
@@ -195,7 +195,7 @@ namespace Photobiz.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("GalleryId");
 
-                    b.ToTable("Photos");
+                    b.ToTable("Photos", (string)null);
                 });
 
             modelBuilder.Entity("Photobiz.Domain.Entities.Role", b =>
@@ -214,7 +214,7 @@ namespace Photobiz.Infrastructure.Persistence.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("Photobiz.Domain.Entities.SessionType", b =>
@@ -240,7 +240,7 @@ namespace Photobiz.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SessionTypes");
+                    b.ToTable("SessionTypes", (string)null);
                 });
 
             modelBuilder.Entity("Photobiz.Domain.Entities.User", b =>
@@ -307,7 +307,7 @@ namespace Photobiz.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasFilter("[IsActive] = 1");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Photobiz.Domain.Entities.UserRole", b =>
@@ -322,7 +322,7 @@ namespace Photobiz.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("UserRoles");
+                    b.ToTable("UserRoles", (string)null);
                 });
 
             modelBuilder.Entity("Photobiz.Domain.Entities.Booking", b =>

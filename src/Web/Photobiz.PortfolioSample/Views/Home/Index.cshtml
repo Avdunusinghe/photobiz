@@ -1,0 +1,97 @@
+@model Photobiz.PortfolioSample.Models.HomeIndexViewModel
+@{
+    ViewData["Title"] = "Portfolio Tenant Simulator";
+}
+
+<div class="mb-4">
+    <h1 class="display-6">Photobiz Portfolio Simulator</h1>
+    <p class="text-muted">
+        Stands in for a tenant's public portfolio site. It calls the real Photobiz API over plain
+        HTTP and overrides the <code>Host</code> request header to simulate arriving on a tenant's
+        subdomain or custom domain — the same signal <code>TenantSelectionMiddleware</code> reads in
+        production — without needing real DNS pointed at this machine.
+    </p>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">1 &middot; Simulate visiting a tenant's site</div>
+            <div class="card-body">
+                <form asp-action="CheckTenant" method="post">
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="SimulatedHost">Host header to send</label>
+                        <input class="form-control" asp-for="SimulatedHost" autocomplete="off" />
+                        <div class="form-text">
+                            Try <code>default.photobiz.app</code> (the seeded dev tenant), or
+                            anything else to see tenant resolution fail cleanly instead of silently
+                            leaking another tenant's data.
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Check tenant</button>
+                </form>
+
+                @if (Model.TenantCheckResult is { } tenantResult)
+                {
+                    <hr />
+                    <p class="mb-1">
+                        <span class="badge @(tenantResult.Succeeded ? "text-bg-success" : "text-bg-danger")">
+                            HTTP @tenantResult.StatusCode
+                        </span>
+                        GET /api/public/whoami
+                    </p>
+                    <pre class="bg-light p-3 rounded small">@tenantResult.Body</pre>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">2 &middot; Sign in as that tenant (the other resolution path)</div>
+            <div class="card-body">
+                <form asp-action="Login" method="post">
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="TenantKey">Workspace (tenant key)</label>
+                        <input class="form-control" asp-for="TenantKey" autocomplete="off" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Username">Username</label>
+                        <input class="form-control" asp-for="Username" autocomplete="off" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Password">Password</label>
+                        <input class="form-control" type="password" asp-for="Password" autocomplete="off" />
+                    </div>
+                    <button class="btn btn-primary" type="submit">Sign in</button>
+                </form>
+
+                @if (Model.LoginResult is { } loginResult)
+                {
+                    <hr />
+                    <p class="mb-1">
+                        <span class="badge @(loginResult.Succeeded ? "text-bg-success" : "text-bg-danger")">
+                            HTTP @loginResult.StatusCode
+                        </span>
+                        POST /api/auth/token
+                    </p>
+                    <pre class="bg-light p-3 rounded small">@loginResult.Body</pre>
+                    @if (loginResult.Succeeded)
+                    {
+                        <p class="text-muted small mb-0">
+                            Paste the <code>accessToken</code> above into
+                            <a href="https://jwt.io" target="_blank" rel="noopener">jwt.io</a> to see
+                            the embedded <code>tenant_key</code> claim.
+                        </p>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<p class="text-muted small mt-4">
+    Requires the Photobiz API running locally (<code>dotnet run</code> from
+    <code>src/Web/Photobiz.Api</code>) at the address configured under
+    <code>PhotobizApi:BaseUrl</code> in this app's appsettings.
+</p>

@@ -20,10 +20,12 @@ namespace Photobiz.Api.Controllers
             [FromBody] TokenRequest request,
             CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new IssueTokenCommand(request.Username, request.Password), cancellationToken);
+            var result = await _mediator.Send(
+                new IssueTokenCommand(request.TenantKey, request.Username, request.Password),
+                cancellationToken);
             return Ok(result);
         }
     }
 
-    public record TokenRequest(string Username, string Password);
+    public record TokenRequest(string TenantKey, string Username, string Password);
 }

@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Photobiz.Application.Common.Constants;
 using Photobiz.Application.Common.Exceptions;
 using Photobiz.Application.Common.Interfaces;
 using Photobiz.Application.Common.Settings;
@@ -13,6 +14,8 @@ namespace Photobiz.Application.Tests.Features.Auth.IssueToken
 {
     public class IssueTokenCommandHandlerTests
     {
+        private const string TenantKey = "acme";
+
         private static readonly JwtSettings Settings = new()
         {
             Issuer = "test-issuer",
@@ -29,6 +32,9 @@ namespace Photobiz.Application.Tests.Features.Auth.IssueToken
         {
             _handler = new IssueTokenCommandHandler(Options.Create(Settings), _dbContext, _passwordHasher);
         }
+
+        private static IssueTokenCommand Command(string username, string password) =>
+            new(TenantKey, username, password);
 
         private static TestDbContext CreateDbContext()
         {
@@ -79,7 +85,7 @@ namespace Photobiz.Application.Tests.Features.Auth.IssueToken
 
             var before = DateTime.UtcNow;
 
-            var result = await _handler.Handle(new IssueTokenCommand("someone", "correct-password"), CancellationToken.None);
+            var result = await _handler.Handle(Command("someone", "correct-password"), CancellationToken.None);
 
             var token = new JwtSecurityTokenHandler().ReadJwtToken(result.AccessToken);
 
@@ -90,11 +96,24 @@ namespace Photobiz.Application.Tests.Features.Auth.IssueToken
         }
 
         [Fact]
+        public async Task Handle_WithValidCredentials_IncludesTenantKeyClaim()
+        {
+            await CreateUserAsync("someone", "correct-password", RoleNames.Admin);
+
+            var result = await _handler.Handle(Command("someone", "correct-password"), CancellationToken.None);
+
+            var token = new JwtSecurityTokenHandler().ReadJwtToken(result.AccessToken);
+            var tenantClaim = token.Claims.Single(c => c.Type == TenantClaimTypes.TenantKey);
+
+            Assert.Equal(TenantKey, tenantClaim.Value);
+        }
+
+        [Fact]
         public async Task Handle_WithValidCredentials_IncludesRoleClaim()
         {
             await CreateUserAsync("someone", "correct-password", RoleNames.Photographer);
 
-            var result = await _handler.Handle(new IssueTokenCommand("someone", "correct-password"), CancellationToken.None);
+            var result = await _handler.Handle(Command("someone", "correct-password"), CancellationToken.None);
 
             var token = new JwtSecurityTokenHandler().ReadJwtToken(result.AccessToken);
             var roleClaim = token.Claims.Single(c => c.Type == ClaimTypes.Role);
@@ -107,7 +126,7 @@ namespace Photobiz.Application.Tests.Features.Auth.IssueToken
         {
             await CreateUserAsync("someone", "correct-password", RoleNames.Admin, RoleNames.Photographer);
 
-            var result = await _handler.Handle(new IssueTokenCommand("someone", "correct-password"), CancellationToken.None);
+            var result = await _handler.Handle(Command("someone", "correct-password"), CancellationToken.None);
 
             var token = new JwtSecurityTokenHandler().ReadJwtToken(result.AccessToken);
             var roleClaims = token.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToArray();
@@ -120,8 +139,8 @@ namespace Photobiz.Application.Tests.Features.Auth.IssueToken
         {
             await CreateUserAsync("someone", "correct-password", RoleNames.Admin);
 
-            var first = await _handler.Handle(new IssueTokenCommand("someone", "correct-password"), CancellationToken.None);
-            var second = await _handler.Handle(new IssueTokenCommand("someone", "correct-password"), CancellationToken.None);
+            var first = await _handler.Handle(Command("someone", "correct-password"), CancellationToken.None);
+            var second = await _handler.Handle(Command("someone", "correct-password"), CancellationToken.None);
 
             var handler = new JwtSecurityTokenHandler();
             var firstJti = handler.ReadJwtToken(first.AccessToken).Id;
@@ -134,7 +153,7 @@ namespace Photobiz.Application.Tests.Features.Auth.IssueToken
         public async Task Handle_WithUnknownUsername_ThrowsAuthenticationFailedException()
         {
             await Assert.ThrowsAsync<AuthenticationFailedException>(() =>
-                _handler.Handle(new IssueTokenCommand("nobody", "whatever"), CancellationToken.None));
+                _handler.Handle(Command("nobody", "whatever"), CancellationToken.None));
         }
 
         [Fact]
@@ -143,7 +162,7 @@ namespace Photobiz.Application.Tests.Features.Auth.IssueToken
             await CreateUserAsync("someone", "correct-password", RoleNames.Admin);
 
             await Assert.ThrowsAsync<AuthenticationFailedException>(() =>
-                _handler.Handle(new IssueTokenCommand("someone", "wrong-password"), CancellationToken.None));
+                _handler.Handle(Command("someone", "wrong-password"), CancellationToken.None));
         }
 
         [Fact]
@@ -154,7 +173,7 @@ namespace Photobiz.Application.Tests.Features.Auth.IssueToken
             await _dbContext.SaveChangesAsync();
 
             await Assert.ThrowsAsync<AuthenticationFailedException>(() =>
-                _handler.Handle(new IssueTokenCommand("someone", "correct-password"), CancellationToken.None));
+                _handler.Handle(Command("someone", "correct-password"), CancellationToken.None));
         }
 
         private class TestDbContext : DbContext, IApplicationDbContext

@@ -25,11 +25,15 @@ describe('AuthService', () => {
 
   it('stores the access token on successful login', () => {
     let completed = false;
-    service.login('someone', 'secret').subscribe(() => (completed = true));
+    service.login('acme', 'someone', 'secret').subscribe(() => (completed = true));
 
     const req = httpTesting.expectOne(`${environment.apiUrl}/api/auth/token`);
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ username: 'someone', password: 'secret' });
+    expect(req.request.body).toEqual({
+      tenantKey: 'acme',
+      username: 'someone',
+      password: 'secret',
+    });
 
     req.flush({ accessToken: 'token-123', expiresAtUtc: '2026-01-01T00:00:00Z' });
 
@@ -39,7 +43,9 @@ describe('AuthService', () => {
 
   it('propagates errors without storing a token', () => {
     let caughtError: unknown;
-    service.login('someone', 'wrong-password').subscribe({ error: (err) => (caughtError = err) });
+    service
+      .login('acme', 'someone', 'wrong-password')
+      .subscribe({ error: (err) => (caughtError = err) });
 
     httpTesting
       .expectOne(`${environment.apiUrl}/api/auth/token`)

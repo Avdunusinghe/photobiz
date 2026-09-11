@@ -46,6 +46,11 @@ namespace Photobiz.Api.ExceptionHandling
                 return await HandleConflictExceptionAsync(httpContext, conflictException);
             }
 
+            if (exception is TenantNotFoundException tenantNotFoundException)
+            {
+                return await HandleTenantNotFoundExceptionAsync(httpContext, tenantNotFoundException);
+            }
+
             _logger.LogError(exception, "Unhandled exception processing {Method} {Path}",
                 httpContext.Request.Method, httpContext.Request.Path);
 
@@ -163,6 +168,29 @@ namespace Photobiz.Api.ExceptionHandling
             {
                 HttpContext = httpContext,
                 Exception = conflictException,
+                ProblemDetails = problemDetails
+            });
+        }
+
+        private async ValueTask<bool> HandleTenantNotFoundExceptionAsync(
+            HttpContext httpContext,
+            TenantNotFoundException tenantNotFoundException)
+        {
+            httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+
+            var problemDetails = new ProblemDetails
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Unknown tenant.",
+                Detail = tenantNotFoundException.Message,
+                Type = "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+                Instance = httpContext.Request.Path
+            };
+
+            return await _problemDetailsService.TryWriteAsync(new ProblemDetailsContext
+            {
+                HttpContext = httpContext,
+                Exception = tenantNotFoundException,
                 ProblemDetails = problemDetails
             });
         }

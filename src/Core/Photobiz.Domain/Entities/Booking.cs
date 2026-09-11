@@ -3,10 +3,8 @@ using Photobiz.Domain.Enums;
 
 namespace Photobiz.Domain.Entities
 {
-    public class Booking : AuditableEntity
+    public class Booking : AuditableEntity<Guid>
     {
-        public Guid Id { get; set; }
-
         public DateTime SessionDate { get; set; }
 
         public BookingStatus Status { get; set; } = BookingStatus.Pending;

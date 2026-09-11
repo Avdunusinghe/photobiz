@@ -24,9 +24,21 @@ describe('LoginComponent', () => {
     router = TestBed.inject(Router);
   });
 
+  it('does not submit when the workspace is empty', () => {
+    const fixture = TestBed.createComponent(LoginComponent);
+    fixture.detectChanges();
+    fixture.componentInstance['form'].controls.username.setValue('someone');
+    fixture.componentInstance['form'].controls.password.setValue('secret');
+
+    fixture.componentInstance['submit']();
+
+    expect(authServiceSpy.login).not.toHaveBeenCalled();
+  });
+
   it('does not submit when the username is empty', () => {
     const fixture = TestBed.createComponent(LoginComponent);
     fixture.detectChanges();
+    fixture.componentInstance['form'].controls.tenantKey.setValue('acme');
     fixture.componentInstance['form'].controls.password.setValue('secret');
 
     fixture.componentInstance['submit']();
@@ -37,6 +49,7 @@ describe('LoginComponent', () => {
   it('does not submit when the password is empty', () => {
     const fixture = TestBed.createComponent(LoginComponent);
     fixture.detectChanges();
+    fixture.componentInstance['form'].controls.tenantKey.setValue('acme');
     fixture.componentInstance['form'].controls.username.setValue('someone');
 
     fixture.componentInstance['submit']();
@@ -50,12 +63,13 @@ describe('LoginComponent', () => {
 
     const fixture = TestBed.createComponent(LoginComponent);
     fixture.detectChanges();
+    fixture.componentInstance['form'].controls.tenantKey.setValue('acme');
     fixture.componentInstance['form'].controls.username.setValue('someone');
     fixture.componentInstance['form'].controls.password.setValue('secret');
 
     fixture.componentInstance['submit']();
 
-    expect(authServiceSpy.login).toHaveBeenCalledWith('someone', 'secret');
+    expect(authServiceSpy.login).toHaveBeenCalledWith('acme', 'someone', 'secret');
     expect(navigateSpy).toHaveBeenCalledWith('/dashboard');
   });
 
@@ -64,6 +78,7 @@ describe('LoginComponent', () => {
 
     const fixture = TestBed.createComponent(LoginComponent);
     fixture.detectChanges();
+    fixture.componentInstance['form'].controls.tenantKey.setValue('acme');
     fixture.componentInstance['form'].controls.username.setValue('someone');
     fixture.componentInstance['form'].controls.password.setValue('wrong');
 
@@ -72,16 +87,19 @@ describe('LoginComponent', () => {
     expect(fixture.componentInstance['errorMessage']()).toBe('Incorrect username or password.');
   });
 
-  it('shows a validation-specific message on a 400 response', () => {
+  it('shows a workspace-specific message when the tenant is unknown', () => {
     authServiceSpy.login.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 400 })));
 
     const fixture = TestBed.createComponent(LoginComponent);
     fixture.detectChanges();
+    fixture.componentInstance['form'].controls.tenantKey.setValue('ghost');
     fixture.componentInstance['form'].controls.username.setValue('someone');
     fixture.componentInstance['form'].controls.password.setValue('secret');
 
     fixture.componentInstance['submit']();
 
-    expect(fixture.componentInstance['errorMessage']()).toBe('Enter a username and password.');
+    expect(fixture.componentInstance['errorMessage']()).toBe(
+      'Check your workspace code and try again.',
+    );
   });
 });

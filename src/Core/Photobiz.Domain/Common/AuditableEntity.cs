@@ -15,4 +15,14 @@ namespace Photobiz.Domain.Common
 
         public string? UpdatedBy { get; set; }
     }
+
+    /// <summary>
+    /// <see cref="AuditableEntity"/> that also owns its primary key, so entities only need to
+    /// pick a key type (<c>AuditableEntity&lt;Guid&gt;</c>, <c>AuditableEntity&lt;int&gt;</c>, ...)
+    /// instead of re-declaring <c>Id</c> themselves.
+    /// </summary>
+    public abstract class AuditableEntity<TId> : AuditableEntity
+    {
+        public TId Id { get; set; } = default!;
+    }
 }

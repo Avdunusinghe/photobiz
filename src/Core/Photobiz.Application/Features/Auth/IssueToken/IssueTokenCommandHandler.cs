@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Photobiz.Application.Common.Constants;
 using Photobiz.Application.Common.Exceptions;
 using Photobiz.Application.Common.Interfaces;
 using Photobiz.Application.Common.Settings;
@@ -31,6 +32,9 @@ namespace Photobiz.Application.Features.Auth.IssueToken
 
         public async Task<IssueTokenResult> Handle(IssueTokenCommand request, CancellationToken cancellationToken)
         {
+            // TenantSelectionMiddleware has already pointed the tenant DbContext at the database
+            // for request.TenantKey (resolved from this same request's body), so this query already
+            // runs against the right tenant — it just needs stamping onto the issued token below.
             var user = await _dbContext.Users
                 .Include(x => x.UserRoles)
                 .ThenInclude(x => x.Role)
@@ -45,7 +49,8 @@ namespace Photobiz.Application.Features.Auth.IssueToken
             var claims = new List<Claim>
             {
                 new(JwtRegisteredClaimNames.Sub, user.Username),
-                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new(TenantClaimTypes.TenantKey, request.TenantKey)
             };
             claims.AddRange(user.UserRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole.Role.Name)));
 

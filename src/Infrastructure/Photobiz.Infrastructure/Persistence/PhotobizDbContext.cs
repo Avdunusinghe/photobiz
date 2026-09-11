@@ -29,7 +29,12 @@ namespace Photobiz.Infrastructure.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(PhotobizDbContext).Assembly);
+            // Photobiz.Infrastructure also hosts MasterDbContext's configurations (under the
+            // ".Configurations.Master" namespace) in the same assembly. Excluding them here keeps
+            // Master-only entities (Tenant) out of every tenant database's model.
+            modelBuilder.ApplyConfigurationsFromAssembly(
+                typeof(PhotobizDbContext).Assembly,
+                type => type.Namespace is null || !type.Namespace.Contains(".Configurations.Master"));
 
             foreach (var entityType in modelBuilder.Model.GetEntityTypes()
                 .Where(type => typeof(AuditableEntity).IsAssignableFrom(type.ClrType)))

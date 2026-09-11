@@ -152,5 +152,24 @@ namespace Photobiz.Api.Tests.ExceptionHandling
             Assert.Equal(StatusCodes.Status409Conflict, captured!.ProblemDetails.Status);
             Assert.Equal("A user with username 'admin' already exists.", captured.ProblemDetails.Detail);
         }
+
+        [Fact]
+        public async Task TryHandleAsync_WithTenantNotFoundException_Returns400WithDetail()
+        {
+            var (handler, problemDetailsService) = CreateHandler(Environments.Production);
+            var httpContext = new DefaultHttpContext();
+            ProblemDetailsContext? captured = null;
+            problemDetailsService
+                .TryWriteAsync(Arg.Do<ProblemDetailsContext>(ctx => captured = ctx))
+                .Returns(true);
+
+            var handled = await handler.TryHandleAsync(
+                httpContext, new TenantNotFoundException("No tenant is registered for key 'ghost'."), CancellationToken.None);
+
+            Assert.True(handled);
+            Assert.Equal(StatusCodes.Status400BadRequest, httpContext.Response.StatusCode);
+            Assert.Equal(StatusCodes.Status400BadRequest, captured!.ProblemDetails.Status);
+            Assert.Equal("No tenant is registered for key 'ghost'.", captured.ProblemDetails.Detail);
+        }
     }
 }

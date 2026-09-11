@@ -9,6 +9,16 @@
     }
 
     <form class="login-form" [formGroup]="form" (ngSubmit)="submit()">
+      <label class="login-form__label" for="tenantKey">Workspace</label>
+      <input
+        id="tenantKey"
+        class="login-form__input"
+        type="text"
+        formControlName="tenantKey"
+        autocomplete="organization"
+        placeholder="Your workspace code"
+      />
+
       <label class="login-form__label" for="username">Username</label>
       <input
         id="username"

@@ -1,22 +1,20 @@
+using Microsoft.AspNetCore.Cors.Infrastructure;
+using Photobiz.Api.Cors;
+
 namespace Photobiz.Api.Extensions
 {
     public static class CorsExtensions
     {
         public const string PolicyName = "Default";
 
-        public static IServiceCollection AddConfiguredCors(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddConfiguredCors(this IServiceCollection services)
         {
-            var allowedOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+            services.AddCors();
 
-            services.AddCors(options =>
-            {
-                options.AddPolicy(PolicyName, policy =>
-                {
-                    policy.WithOrigins(allowedOrigins)
-                        .AllowAnyHeader()
-                        .AllowAnyMethod();
-                });
-            });
+            // Overrides AddCors()'s DefaultCorsPolicyProvider: the admin SPA's origin is a fixed
+            // config value, but a tenant portfolio's origin is only known via the Master database
+            // at request time (see TenantCorsPolicyProvider).
+            services.AddSingleton<ICorsPolicyProvider, TenantCorsPolicyProvider>();
 
             return services;
         }
