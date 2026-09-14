@@ -6,7 +6,7 @@ using NSubstitute;
 using Photobiz.Api.Services;
 using Photobiz.Application.Common.Constants;
 using Photobiz.Application.Common.Settings;
-using Photobiz.Domain.Entities;
+using Photobiz.Domain.Entities.Master;
 using Photobiz.Infrastructure.Persistence;
 
 namespace Photobiz.Api.Tests.Services

@@ -21,6 +21,10 @@ namespace Photobiz.Application.Common.Interfaces
 
         DbSet<Booking> Bookings { get; }
 
+        DbSet<SiteTheme> SiteThemes { get; }
+
+        DbSet<SiteFooterLink> SiteFooterLinks { get; }
+
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

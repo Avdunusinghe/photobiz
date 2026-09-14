@@ -37,7 +37,9 @@ namespace Photobiz.Infrastructure.Persistence.Seeding
                 ?? throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");
 
             await TenantSeeder.SeedAsync(masterDbContext, tenantConnectionString, logger, cancellationToken);
+            await SmtpSettingSeeder.SeedAsync(masterDbContext, TenantSeeder.DefaultTenantKey, logger, cancellationToken);
             await UserSeeder.SeedAsync(dbContext, passwordHasher, logger, cancellationToken);
+            await SiteThemeSeeder.SeedAsync(dbContext, logger, cancellationToken);
         }
     }
 }

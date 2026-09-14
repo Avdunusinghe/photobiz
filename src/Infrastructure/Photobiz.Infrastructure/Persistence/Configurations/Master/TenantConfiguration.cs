@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Photobiz.Domain.Entities;
+using Photobiz.Domain.Entities.Master;
 
 namespace Photobiz.Infrastructure.Persistence.Configurations.Master
 {
@@ -25,6 +25,9 @@ namespace Photobiz.Infrastructure.Persistence.Configurations.Master
             builder.Property(x => x.ConnectionString)
                 .IsRequired()
                 .HasMaxLength(1024);
+
+            builder.Property(x => x.LogoUrl).HasMaxLength(1024);
+            builder.Property(x => x.LogoStoragePath).HasMaxLength(1024);
 
             builder.Property(x => x.CustomDomain).HasMaxLength(256);
             builder.Property(x => x.DomainVerificationToken).HasMaxLength(64);

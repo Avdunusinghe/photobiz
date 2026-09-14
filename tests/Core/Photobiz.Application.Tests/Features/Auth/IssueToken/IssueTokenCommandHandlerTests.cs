@@ -198,6 +198,10 @@ namespace Photobiz.Application.Tests.Features.Auth.IssueToken
 
             public DbSet<Booking> Bookings => Set<Booking>();
 
+            public DbSet<SiteTheme> SiteThemes => Set<SiteTheme>();
+
+            public DbSet<SiteFooterLink> SiteFooterLinks => Set<SiteFooterLink>();
+
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<UserRole>().HasKey(x => new { x.UserId, x.RoleId });

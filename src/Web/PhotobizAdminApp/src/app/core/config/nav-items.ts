@@ -23,6 +23,8 @@ export const NAV_ITEMS: NavItem[] = [
     label: 'Settings',
     icon: 'settings',
     children: [
+      { label: 'Business profile', route: '/settings/tenant' },
+      { label: 'Website theme', route: '/settings/theme' },
       { label: 'Session types', route: '/settings/session-types' },
       { label: 'Users & roles', route: '/settings/users' },
     ],

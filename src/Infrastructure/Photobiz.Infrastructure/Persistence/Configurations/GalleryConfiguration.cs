@@ -17,6 +17,10 @@ namespace Photobiz.Infrastructure.Persistence.Configurations
             builder.Property(x => x.Description)
                 .HasMaxLength(2000);
 
+            builder.Property(x => x.Template)
+                .HasConversion<string>()
+                .HasMaxLength(20);
+
             builder.HasOne(x => x.User)
                 .WithMany(x => x.Galleries)
                 .HasForeignKey(x => x.UserId)

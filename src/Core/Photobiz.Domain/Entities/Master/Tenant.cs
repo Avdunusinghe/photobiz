@@ -1,6 +1,6 @@
 using Photobiz.Domain.Common;
 
-namespace Photobiz.Domain.Entities
+namespace Photobiz.Domain.Entities.Master
 {
     /// <summary>
     /// A registered tenant/workspace: which physical database its data lives in, the customer who
@@ -23,6 +23,17 @@ namespace Photobiz.Domain.Entities
         public string TenantKey { get; private set; } = default!;
         public string Name { get; private set; } = default!;
         public string ConnectionString { get; private set; } = default!;
+
+        /// <summary>The tenant's own logo, shown on their portfolio site and in the admin console. Null until they upload one.</summary>
+        public string? LogoUrl { get; private set; }
+
+        /// <summary>
+        /// Where <see cref="LogoUrl"/>'s file lives on disk, relative to the storage root (e.g.
+        /// "Tenant/acme/Photos/Logo/acme-logo-3f1a9c2e.webp") — kept so <see cref="RemoveLogo"/> can
+        /// delete the physical file. Always set together with <see cref="LogoUrl"/> by
+        /// <see cref="SetLogo"/>; null whenever there's no logo.
+        /// </summary>
+        public string? LogoStoragePath { get; private set; }
 
         /// <summary>
         /// The tenant's own domain for their public portfolio site (e.g. "www.janedoephoto.com"),
@@ -72,6 +83,9 @@ namespace Photobiz.Domain.Entities
 
         public bool IsSubscribed { get; private set; }
         public DateOnly? SubscriptionExpiredOn { get; private set; }
+
+        /// <summary>Null until the tenant configures their own outgoing mail server.</summary>
+        public virtual SmtpSetting? SmtpSetting { get; private set; }
 
         /// <summary>Required by EF Core for materialization; use <see cref="Create"/> otherwise.</summary>
         private Tenant()
@@ -137,6 +151,110 @@ namespace Photobiz.Domain.Entities
             }
 
             ConnectionString = connectionString;
+        }
+
+        /// <summary>
+        /// Replaces the tenant's business profile — name and contact/billing address — as edited
+        /// from their own "tenant settings" screen. The logo is managed separately through
+        /// <see cref="SetLogo"/>/<see cref="RemoveLogo"/>, which own the on-disk file alongside it;
+        /// folding a free-text URL in here would let it drift out of sync with what's actually
+        /// stored under <see cref="LogoStoragePath"/>.
+        /// </summary>
+        public void UpdateProfile(
+            string name,
+            string customerEmail,
+            string customerFirstName,
+            string customerLastName,
+            string phone,
+            string address,
+            string city,
+            string country)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("Name is required.", nameof(name));
+            }
+
+            if (string.IsNullOrWhiteSpace(customerEmail))
+            {
+                throw new ArgumentException("Customer email is required.", nameof(customerEmail));
+            }
+
+            if (string.IsNullOrWhiteSpace(customerFirstName))
+            {
+                throw new ArgumentException("Customer first name is required.", nameof(customerFirstName));
+            }
+
+            if (string.IsNullOrWhiteSpace(customerLastName))
+            {
+                throw new ArgumentException("Customer last name is required.", nameof(customerLastName));
+            }
+
+            if (string.IsNullOrWhiteSpace(phone))
+            {
+                throw new ArgumentException("Phone is required.", nameof(phone));
+            }
+
+            if (string.IsNullOrWhiteSpace(address))
+            {
+                throw new ArgumentException("Address is required.", nameof(address));
+            }
+
+            if (string.IsNullOrWhiteSpace(city))
+            {
+                throw new ArgumentException("City is required.", nameof(city));
+            }
+
+            if (string.IsNullOrWhiteSpace(country))
+            {
+                throw new ArgumentException("Country is required.", nameof(country));
+            }
+
+            Name = name.Trim();
+            CustomerEmail = customerEmail.Trim();
+            CustomerFirstName = customerFirstName.Trim();
+            CustomerLastName = customerLastName.Trim();
+            Phone = phone.Trim();
+            Address = address.Trim();
+            City = city.Trim();
+            Country = country.Trim();
+        }
+
+        /// <summary>
+        /// Records a freshly-uploaded, already-processed-and-stored logo. Deletes whatever the
+        /// previous <see cref="LogoStoragePath"/> pointed at first when one exists — call sites don't
+        /// need to remember to clean up the old file themselves.
+        /// </summary>
+        /// <returns>The previous storage path, if any, so the caller can delete that physical file.</returns>
+        public string? SetLogo(string logoUrl, string logoStoragePath)
+        {
+            if (string.IsNullOrWhiteSpace(logoUrl))
+            {
+                throw new ArgumentException("Logo URL is required.", nameof(logoUrl));
+            }
+
+            if (string.IsNullOrWhiteSpace(logoStoragePath))
+            {
+                throw new ArgumentException("Logo storage path is required.", nameof(logoStoragePath));
+            }
+
+            var previousStoragePath = LogoStoragePath;
+
+            LogoUrl = logoUrl.Trim();
+            LogoStoragePath = logoStoragePath.Trim();
+
+            return previousStoragePath;
+        }
+
+        /// <summary>Clears the logo. Returns the storage path that was in effect so the caller can delete that physical file.</summary>
+        public string? RemoveLogo()
+        {
+            var previousStoragePath = LogoStoragePath;
+
+            LogoUrl = null;
+            LogoStoragePath = null;
+
+            return previousStoragePath;
         }
 
         /// <summary>

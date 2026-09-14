@@ -1,4 +1,4 @@
-using Photobiz.Domain.Entities;
+using Photobiz.Domain.Entities.Master;
 
 namespace Photobiz.Application.Common.Interfaces
 {

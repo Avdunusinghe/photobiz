@@ -65,7 +65,7 @@ namespace Photobiz.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("SessionTypeId");
 
-                    b.ToTable("Bookings", (string)null);
+                    b.ToTable("Bookings");
                 });
 
             modelBuilder.Entity("Photobiz.Domain.Entities.Client", b =>
@@ -107,7 +107,7 @@ namespace Photobiz.Infrastructure.Persistence.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Clients", (string)null);
+                    b.ToTable("Clients");
                 });
 
             modelBuilder.Entity("Photobiz.Domain.Entities.Gallery", b =>
@@ -126,6 +126,10 @@ namespace Photobiz.Infrastructure.Persistence.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Template")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -146,7 +150,7 @@ namespace Photobiz.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Galleries", (string)null);
+                    b.ToTable("Galleries");
                 });
 
             modelBuilder.Entity("Photobiz.Domain.Entities.Photo", b =>
@@ -195,7 +199,7 @@ namespace Photobiz.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("GalleryId");
 
-                    b.ToTable("Photos", (string)null);
+                    b.ToTable("Photos");
                 });
 
             modelBuilder.Entity("Photobiz.Domain.Entities.Role", b =>
@@ -214,7 +218,7 @@ namespace Photobiz.Infrastructure.Persistence.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("Photobiz.Domain.Entities.SessionType", b =>
@@ -240,7 +244,132 @@ namespace Photobiz.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SessionTypes", (string)null);
+                    b.ToTable("SessionTypes");
+                });
+
+            modelBuilder.Entity("Photobiz.Domain.Entities.SiteFooterLink", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Platform")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("SiteThemeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SiteThemeId");
+
+                    b.ToTable("SiteFooterLinks");
+                });
+
+            modelBuilder.Entity("Photobiz.Domain.Entities.SiteTheme", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AccentColor")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("DefaultGalleryTemplate")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("FontFamily")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("FooterCopyrightText")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("FooterText")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("GradientDirection")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("GradientEndColor")
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
+
+                    b.Property<string>("GradientStartColor")
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
+
+                    b.Property<string>("HeaderStyle")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("PrimaryColor")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
+
+                    b.Property<string>("SecondaryColor")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
+
+                    b.Property<string>("Tagline")
+                        .HasMaxLength(160)
+                        .HasColumnType("nvarchar(160)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SiteThemes");
                 });
 
             modelBuilder.Entity("Photobiz.Domain.Entities.User", b =>
@@ -307,7 +436,7 @@ namespace Photobiz.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasFilter("[IsActive] = 1");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Photobiz.Domain.Entities.UserRole", b =>
@@ -322,7 +451,7 @@ namespace Photobiz.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("UserRoles", (string)null);
+                    b.ToTable("UserRoles");
                 });
 
             modelBuilder.Entity("Photobiz.Domain.Entities.Booking", b =>
@@ -366,6 +495,17 @@ namespace Photobiz.Infrastructure.Persistence.Migrations
                     b.Navigation("Gallery");
                 });
 
+            modelBuilder.Entity("Photobiz.Domain.Entities.SiteFooterLink", b =>
+                {
+                    b.HasOne("Photobiz.Domain.Entities.SiteTheme", "SiteTheme")
+                        .WithMany("FooterLinks")
+                        .HasForeignKey("SiteThemeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SiteTheme");
+                });
+
             modelBuilder.Entity("Photobiz.Domain.Entities.UserRole", b =>
                 {
                     b.HasOne("Photobiz.Domain.Entities.Role", "Role")
@@ -403,6 +543,11 @@ namespace Photobiz.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Photobiz.Domain.Entities.SessionType", b =>
                 {
                     b.Navigation("Bookings");
+                });
+
+            modelBuilder.Entity("Photobiz.Domain.Entities.SiteTheme", b =>
+                {
+                    b.Navigation("FooterLinks");
                 });
 
             modelBuilder.Entity("Photobiz.Domain.Entities.User", b =>

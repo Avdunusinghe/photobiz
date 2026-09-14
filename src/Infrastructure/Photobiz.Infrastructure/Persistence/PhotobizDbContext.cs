@@ -27,6 +27,10 @@ namespace Photobiz.Infrastructure.Persistence
 
         public DbSet<Booking> Bookings => Set<Booking>();
 
+        public DbSet<SiteTheme> SiteThemes => Set<SiteTheme>();
+
+        public DbSet<SiteFooterLink> SiteFooterLinks => Set<SiteFooterLink>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Photobiz.Infrastructure also hosts MasterDbContext's configurations (under the

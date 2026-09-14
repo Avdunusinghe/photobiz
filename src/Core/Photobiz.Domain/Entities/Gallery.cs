@@ -1,4 +1,5 @@
 using Photobiz.Domain.Common;
+using Photobiz.Domain.Enums;
 
 namespace Photobiz.Domain.Entities
 {
@@ -13,5 +14,8 @@ namespace Photobiz.Domain.Entities
         public virtual User User { get; set; } = null!;
 
         public virtual ICollection<Photo> Photos { get; set; } = [];
+
+        /// <summary>Null falls back to the tenant's <see cref="SiteTheme.DefaultGalleryTemplate"/>.</summary>
+        public GalleryTemplate? Template { get; set; }
     }
 }

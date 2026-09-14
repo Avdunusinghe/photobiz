@@ -1,0 +1,321 @@
+<div class="page">
+  <header class="page__header">
+    <div>
+      <h1 class="page__title">Business Profile</h1>
+      <p class="page__description">
+        Your studio's name, logo, and contact details — shown across the console and used for your
+        tenant record.
+      </p>
+    </div>
+    <div class="page__actions">
+      <button
+        class="btn btn--normal"
+        type="button"
+        (click)="load()"
+        [disabled]="loading() || saving()"
+      >
+        <app-icon name="refresh" [size]="16" />
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  @if (flash(); as message) {
+    <div class="flash flash--success" role="status">
+      <span>{{ message }}</span>
+      <button class="flash__dismiss" type="button" aria-label="Dismiss" (click)="dismissFlash()">
+        <app-icon name="close" [size]="14" />
+      </button>
+    </div>
+  }
+
+  @if (error(); as message) {
+    <div class="flash flash--error" role="alert">
+      <span>{{ message }}</span>
+      <button class="btn btn--link" type="button" (click)="load()">Retry</button>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="state">
+      <span class="spinner" aria-hidden="true"></span>
+      <p>Loading business profile…</p>
+    </div>
+  } @else if (tenant(); as t) {
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <div class="settings-layout">
+        <div class="settings-main">
+          <section class="container settings-card">
+            <div class="container__tools">
+              <div class="container__heading">
+                <h2 class="container__title">Branding</h2>
+              </div>
+            </div>
+            <div class="settings-card__body">
+              <div class="logo-row">
+                <div class="logo-preview">
+                  @if (t.logoUrl && !logoPreviewFailed()) {
+                    <img [src]="t.logoUrl" alt="" (error)="onLogoPreviewError()" />
+                  } @else {
+                    <span class="logo-preview__fallback">{{ t.name.charAt(0).toUpperCase() }}</span>
+                  }
+                </div>
+                <div class="field">
+                  <label class="field__label" for="tenant-logo-file">Logo</label>
+                  <div class="logo-actions">
+                    <label
+                      class="btn btn--normal logo-upload-btn"
+                      [class.is-disabled]="uploadingLogo() || removingLogo()"
+                      for="tenant-logo-file"
+                    >
+                      <app-icon name="upload" [size]="16" />
+                      {{ uploadingLogo() ? 'Uploading…' : t.logoUrl ? 'Replace logo' : 'Upload logo' }}
+                    </label>
+                    <input
+                      id="tenant-logo-file"
+                      class="logo-upload-input"
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/gif"
+                      [disabled]="uploadingLogo() || removingLogo()"
+                      (change)="onLogoFileSelected($event)"
+                    />
+                    @if (t.logoUrl) {
+                      <button
+                        class="btn btn--link"
+                        type="button"
+                        [disabled]="uploadingLogo() || removingLogo()"
+                        (click)="removeLogo()"
+                      >
+                        {{ removingLogo() ? 'Removing…' : 'Remove logo' }}
+                      </button>
+                    }
+                  </div>
+                  <p class="field__hint">PNG, JPEG, WebP, or GIF. Max 5 MB.</p>
+                  @if (logoError(); as message) {
+                    <p class="field__error">{{ message }}</p>
+                  }
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field__label" for="tenant-name">Business name</label>
+                <input id="tenant-name" class="field__input" type="text" formControlName="name" />
+                @if (hasError('name')) {
+                  <p class="field__error">Enter a business name.</p>
+                }
+              </div>
+            </div>
+          </section>
+
+          <section class="container settings-card">
+            <div class="container__tools">
+              <div class="container__heading">
+                <h2 class="container__title">Contact &amp; billing address</h2>
+              </div>
+            </div>
+            <div class="settings-card__body field-grid">
+              <div class="field">
+                <label class="field__label" for="tenant-first-name">First name</label>
+                <input
+                  id="tenant-first-name"
+                  class="field__input"
+                  type="text"
+                  formControlName="customerFirstName"
+                />
+                @if (hasError('customerFirstName')) {
+                  <p class="field__error">Enter a first name.</p>
+                }
+              </div>
+              <div class="field">
+                <label class="field__label" for="tenant-last-name">Last name</label>
+                <input
+                  id="tenant-last-name"
+                  class="field__input"
+                  type="text"
+                  formControlName="customerLastName"
+                />
+                @if (hasError('customerLastName')) {
+                  <p class="field__error">Enter a last name.</p>
+                }
+              </div>
+              <div class="field">
+                <label class="field__label" for="tenant-email">Email</label>
+                <input
+                  id="tenant-email"
+                  class="field__input"
+                  type="email"
+                  formControlName="customerEmail"
+                />
+                @if (hasError('customerEmail')) {
+                  <p class="field__error">Enter a valid email address.</p>
+                }
+              </div>
+              <div class="field">
+                <label class="field__label" for="tenant-phone">Phone</label>
+                <input id="tenant-phone" class="field__input" type="tel" formControlName="phone" />
+                @if (hasError('phone')) {
+                  <p class="field__error">Enter a phone number.</p>
+                }
+              </div>
+              <div class="field field--span-2">
+                <label class="field__label" for="tenant-address">Address</label>
+                <input
+                  id="tenant-address"
+                  class="field__input"
+                  type="text"
+                  formControlName="address"
+                />
+                @if (hasError('address')) {
+                  <p class="field__error">Enter an address.</p>
+                }
+              </div>
+              <div class="field">
+                <label class="field__label" for="tenant-city">City</label>
+                <input id="tenant-city" class="field__input" type="text" formControlName="city" />
+                @if (hasError('city')) {
+                  <p class="field__error">Enter a city.</p>
+                }
+              </div>
+              <div class="field">
+                <label class="field__label" for="tenant-country">Country</label>
+                <input
+                  id="tenant-country"
+                  class="field__input"
+                  type="text"
+                  formControlName="country"
+                />
+                @if (hasError('country')) {
+                  <p class="field__error">Enter a country.</p>
+                }
+              </div>
+            </div>
+          </section>
+
+          <div class="settings-actions">
+            <button class="btn btn--primary" type="submit" [disabled]="saving()">
+              {{ saving() ? 'Saving…' : 'Save changes' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="settings-aside">
+          <section class="container settings-card">
+            <div class="container__tools">
+              <div class="container__heading">
+                <h2 class="container__title">Account</h2>
+                <span class="container__counter">read-only</span>
+              </div>
+            </div>
+            <div class="settings-card__body">
+              <dl class="info-list">
+                <div class="info-list__row">
+                  <dt>Workspace key</dt>
+                  <dd>{{ t.tenantKey }}</dd>
+                </div>
+                <div class="info-list__row">
+                  <dt>Plan</dt>
+                  <dd>{{ t.planCode }} &middot; {{ t.billingCycle }}</dd>
+                </div>
+                <div class="info-list__row">
+                  <dt>Subscription</dt>
+                  <dd>
+                    <span class="status" [class.status--inactive]="!t.isSubscribed">
+                      <span class="status__dot"></span>
+                      {{ t.isSubscribed ? 'Active' : 'Inactive' }}
+                    </span>
+                  </dd>
+                </div>
+                <div class="info-list__row">
+                  <dt>Custom domain</dt>
+                  <dd>
+                    @if (t.customDomain) {
+                      {{ t.customDomain }}
+                      <span class="pill">{{
+                        t.customDomainVerifiedAt ? 'Verified' : 'Pending verification'
+                      }}</span>
+                    } @else {
+                      <span class="info-list__muted">Not configured</span>
+                    }
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </section>
+
+          <section class="container settings-card">
+            <div class="container__tools">
+              <div class="container__heading">
+                <h2 class="container__title">Email (SMTP)</h2>
+                <span class="container__counter">read-only</span>
+              </div>
+              <button
+                class="btn btn--normal btn--icon"
+                type="button"
+                (click)="loadSmtpSettings()"
+                [disabled]="smtpLoading()"
+                aria-label="Refresh SMTP settings"
+              >
+                <app-icon name="refresh" [size]="16" />
+              </button>
+            </div>
+            <div class="settings-card__body">
+              @if (smtpLoading()) {
+                <div class="state state--inline">
+                  <span class="spinner" aria-hidden="true"></span>
+                  <p>Loading SMTP settings…</p>
+                </div>
+              } @else if (smtpError(); as message) {
+                <div class="flash flash--error" role="alert">
+                  <span>{{ message }}</span>
+                  <button class="btn btn--link" type="button" (click)="loadSmtpSettings()">
+                    Retry
+                  </button>
+                </div>
+              } @else if (smtpSettings(); as smtp) {
+                <dl class="info-list">
+                  <div class="info-list__row">
+                    <dt>Status</dt>
+                    <dd>
+                      <span class="status" [class.status--inactive]="!smtp.isEnabled">
+                        <span class="status__dot"></span>
+                        {{ smtp.isEnabled ? 'Enabled' : 'Disabled' }}
+                      </span>
+                    </dd>
+                  </div>
+                  <div class="info-list__row">
+                    <dt>Server</dt>
+                    <dd>{{ smtp.host }}:{{ smtp.port }}</dd>
+                  </div>
+                  <div class="info-list__row">
+                    <dt>Encryption</dt>
+                    <dd>
+                      <span class="pill">{{ smtp.enableSsl ? 'SSL/TLS' : 'None' }}</span>
+                    </dd>
+                  </div>
+                  <div class="info-list__row">
+                    <dt>Username</dt>
+                    <dd>{{ smtp.username }}</dd>
+                  </div>
+                  <div class="info-list__row">
+                    <dt>From</dt>
+                    <dd>
+                      @if (smtp.fromName) {
+                        {{ smtp.fromName }} &lt;{{ smtp.fromEmail }}&gt;
+                      } @else {
+                        {{ smtp.fromEmail }}
+                      }
+                    </dd>
+                  </div>
+                </dl>
+              } @else {
+                <p class="info-list__muted">
+                  Not configured — emails currently send from the platform's default address.
+                </p>
+              }
+            </div>
+          </section>
+        </div>
+      </div>
+    </form>
+  }
+</div>

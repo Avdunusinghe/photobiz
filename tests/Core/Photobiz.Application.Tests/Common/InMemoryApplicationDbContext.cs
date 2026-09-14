@@ -30,6 +30,10 @@ namespace Photobiz.Application.Tests.Common
 
         public DbSet<Booking> Bookings => Set<Booking>();
 
+        public DbSet<SiteTheme> SiteThemes => Set<SiteTheme>();
+
+        public DbSet<SiteFooterLink> SiteFooterLinks => Set<SiteFooterLink>();
+
         public static InMemoryApplicationDbContext Create()
         {
             var options = new DbContextOptionsBuilder<InMemoryApplicationDbContext>()

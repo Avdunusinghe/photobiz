@@ -30,7 +30,7 @@ namespace Photobiz.Api.Controllers
         {
             var diagnostics = await _mediator.Send(new GetTenantDiagnosticsQuery(), cancellationToken);
 
-            return Ok(new WhoAmIResponse(Request.Host.Value, diagnostics.UserCount, diagnostics.SampleUsernames));
+            return Ok(new WhoAmIResponse(Request.Host.Value ?? string.Empty, diagnostics.UserCount, diagnostics.SampleUsernames));
         }
     }
 

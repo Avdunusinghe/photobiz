@@ -10,7 +10,8 @@ export type IconName =
   | 'search'
   | 'refresh'
   | 'plus'
-  | 'close';
+  | 'close'
+  | 'upload';
 
 @Component({
   selector: 'app-icon',

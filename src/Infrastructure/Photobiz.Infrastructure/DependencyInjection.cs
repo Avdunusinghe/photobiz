@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Photobiz.Application.Common.Interfaces;
+using Photobiz.Infrastructure.Media;
 using Photobiz.Infrastructure.Persistence;
 using Photobiz.Infrastructure.Persistence.Interceptors;
 using Photobiz.Infrastructure.Tenancy;
@@ -43,10 +44,14 @@ namespace Photobiz.Infrastructure
                     CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning)));
 
             services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<PhotobizDbContext>());
+            services.AddScoped<IMasterDbContext>(provider => provider.GetRequiredService<MasterDbContext>());
 
             services.AddSingleton<ILookupClient>(new LookupClient());
             services.AddSingleton<ITxtRecordLookup, DnsClientTxtRecordLookup>();
             services.AddSingleton<ICustomDomainVerifier, DnsTxtCustomDomainVerifier>();
+
+            services.AddSingleton<IImageProcessor, SkiaImageProcessor>();
+            services.AddSingleton<ITenantLogoStorage, TenantLogoStorage>();
 
             return services;
         }

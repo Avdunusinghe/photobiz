@@ -1,0 +1,407 @@
+<div class="page">
+  <header class="page__header">
+    <div>
+      <h1 class="page__title">Website Theme</h1>
+      <p class="page__description">
+        Colors, gradient, header, footer, and gallery layout for your public portfolio site.
+      </p>
+    </div>
+    <div class="page__actions">
+      <button class="btn btn--normal" type="button" (click)="load()" [disabled]="loading() || saving()">
+        <app-icon name="refresh" [size]="16" />
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  @if (flash(); as message) {
+    <div class="flash flash--success" role="status">
+      <span>{{ message }}</span>
+      <button class="flash__dismiss" type="button" aria-label="Dismiss" (click)="dismissFlash()">
+        <app-icon name="close" [size]="14" />
+      </button>
+    </div>
+  }
+
+  @if (error(); as message) {
+    <div class="flash flash--error" role="alert">
+      <span>{{ message }}</span>
+      <button class="btn btn--link" type="button" (click)="load()">Retry</button>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="state">
+      <span class="spinner" aria-hidden="true"></span>
+      <p>Loading theme…</p>
+    </div>
+  } @else if (theme(); as t) {
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <div class="settings-layout">
+        <div class="settings-main">
+          <section class="container settings-card">
+            <div class="container__tools">
+              <div class="container__heading">
+                <h2 class="container__title">Colors &amp; gradient</h2>
+              </div>
+            </div>
+            <div class="settings-card__body">
+              <div class="color-grid">
+                <div class="field">
+                  <label class="field__label" for="theme-primary">Primary</label>
+                  <div class="color-input">
+                    <input
+                      id="theme-primary"
+                      type="color"
+                      [value]="form.controls.primaryColor.value"
+                      (input)="form.controls.primaryColor.setValue($any($event.target).value)"
+                    />
+                    <input class="field__input" type="text" formControlName="primaryColor" />
+                  </div>
+                  @if (hasError('primaryColor')) {
+                    <p class="field__error">Enter a valid hex color, e.g. #1A2B3C.</p>
+                  }
+                </div>
+                <div class="field">
+                  <label class="field__label" for="theme-secondary">Secondary</label>
+                  <div class="color-input">
+                    <input
+                      id="theme-secondary"
+                      type="color"
+                      [value]="form.controls.secondaryColor.value"
+                      (input)="form.controls.secondaryColor.setValue($any($event.target).value)"
+                    />
+                    <input class="field__input" type="text" formControlName="secondaryColor" />
+                  </div>
+                  @if (hasError('secondaryColor')) {
+                    <p class="field__error">Enter a valid hex color, e.g. #1A2B3C.</p>
+                  }
+                </div>
+                <div class="field">
+                  <label class="field__label" for="theme-accent">Accent</label>
+                  <div class="color-input">
+                    <input
+                      id="theme-accent"
+                      type="color"
+                      [value]="form.controls.accentColor.value"
+                      (input)="form.controls.accentColor.setValue($any($event.target).value)"
+                    />
+                    <input class="field__input" type="text" formControlName="accentColor" />
+                  </div>
+                  @if (hasError('accentColor')) {
+                    <p class="field__error">Enter a valid hex color, e.g. #1A2B3C.</p>
+                  }
+                </div>
+              </div>
+
+              <label class="checkbox-field">
+                <input type="checkbox" formControlName="useGradient" />
+                Use a gradient background instead of a solid primary color
+              </label>
+
+              @if (formValue().useGradient) {
+                <div class="color-grid">
+                  <div class="field">
+                    <label class="field__label" for="theme-gradient-start">Gradient start</label>
+                    <div class="color-input">
+                      <input
+                        id="theme-gradient-start"
+                        type="color"
+                        [value]="form.controls.gradientStartColor.value"
+                        (input)="form.controls.gradientStartColor.setValue($any($event.target).value)"
+                      />
+                      <input class="field__input" type="text" formControlName="gradientStartColor" />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label class="field__label" for="theme-gradient-end">Gradient end</label>
+                    <div class="color-input">
+                      <input
+                        id="theme-gradient-end"
+                        type="color"
+                        [value]="form.controls.gradientEndColor.value"
+                        (input)="form.controls.gradientEndColor.setValue($any($event.target).value)"
+                      />
+                      <input class="field__input" type="text" formControlName="gradientEndColor" />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label class="field__label" for="theme-gradient-direction">Direction</label>
+                    <select id="theme-gradient-direction" class="field__input" formControlName="gradientDirection">
+                      @for (option of gradientDirections; track option.value) {
+                        <option [value]="option.value">{{ option.label }}</option>
+                      }
+                    </select>
+                  </div>
+                </div>
+              }
+            </div>
+          </section>
+
+          <section class="container settings-card">
+            <div class="container__tools">
+              <div class="container__heading">
+                <h2 class="container__title">Typography &amp; header</h2>
+              </div>
+            </div>
+            <div class="settings-card__body field-grid">
+              <div class="field">
+                <label class="field__label" for="theme-font">Font</label>
+                <select id="theme-font" class="field__input" formControlName="fontFamily">
+                  @for (option of fontOptions; track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                  }
+                </select>
+              </div>
+              <div class="field">
+                <label class="field__label" for="theme-header-style">Header style</label>
+                <select id="theme-header-style" class="field__input" formControlName="headerStyle">
+                  @for (option of headerStyles; track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                  }
+                </select>
+                <p class="field__hint">
+                  {{ headerStyleDescription(form.controls.headerStyle.value) }}
+                </p>
+              </div>
+              <div class="field field--span-2">
+                <label class="field__label" for="theme-tagline">Tagline</label>
+                <input
+                  id="theme-tagline"
+                  class="field__input"
+                  type="text"
+                  formControlName="tagline"
+                  placeholder="Capturing your story"
+                />
+                @if (hasError('tagline')) {
+                  <p class="field__error">Max 160 characters.</p>
+                }
+              </div>
+            </div>
+          </section>
+
+          <section class="container settings-card">
+            <div class="container__tools">
+              <div class="container__heading">
+                <h2 class="container__title">Footer</h2>
+              </div>
+            </div>
+            <div class="settings-card__body">
+              <div class="field">
+                <label class="field__label" for="theme-footer-text">Footer text</label>
+                <textarea
+                  id="theme-footer-text"
+                  class="field__input"
+                  rows="2"
+                  formControlName="footerText"
+                  placeholder="A short note shown above the copyright line."
+                ></textarea>
+                @if (hasError('footerText')) {
+                  <p class="field__error">Max 500 characters.</p>
+                }
+              </div>
+              <div class="field">
+                <label class="field__label" for="theme-footer-copyright">Copyright text</label>
+                <input
+                  id="theme-footer-copyright"
+                  class="field__input"
+                  type="text"
+                  formControlName="footerCopyrightText"
+                  placeholder="© {{ currentYear }} Your Studio Name"
+                />
+                <p class="field__hint">Leave blank to use "© {{ currentYear }} your business name".</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="container settings-card">
+            <div class="container__tools">
+              <div class="container__heading">
+                <h2 class="container__title">Gallery layout</h2>
+              </div>
+            </div>
+            <div class="settings-card__body">
+              <div class="template-grid">
+                @for (option of galleryTemplates; track option.value) {
+                  <label
+                    class="template-option"
+                    [class.template-option--selected]="form.controls.defaultGalleryTemplate.value === option.value"
+                  >
+                    <input type="radio" formControlName="defaultGalleryTemplate" [value]="option.value" />
+                    <span class="template-option__label">{{ option.label }}</span>
+                    <span class="template-option__hint">{{ option.description }}</span>
+                  </label>
+                }
+              </div>
+              <p class="field__hint">Individual galleries will be able to override this once gallery management ships.</p>
+            </div>
+          </section>
+
+          <div class="settings-actions">
+            <button class="btn btn--primary" type="submit" [disabled]="saving()">
+              {{ saving() ? 'Saving…' : 'Save changes' }}
+            </button>
+          </div>
+
+          <section class="container settings-card">
+            <div class="container__tools">
+              <div class="container__heading">
+                <h2 class="container__title">Footer links</h2>
+                <span class="container__counter">{{ t.footerLinks.length }}</span>
+              </div>
+              <button class="btn btn--normal" type="button" (click)="startAddingLink()" [disabled]="addingLink()">
+                <app-icon name="plus" [size]="16" />
+                Add link
+              </button>
+            </div>
+            <div class="settings-card__body">
+              @if (linkError(); as message) {
+                <div class="flash flash--error" role="alert">
+                  <span>{{ message }}</span>
+                </div>
+              }
+
+              @if (addingLink()) {
+                <form class="link-form" [formGroup]="addLinkForm" (ngSubmit)="submitAddLink()">
+                  <select class="field__input link-form__platform" [formControl]="addLinkForm.controls.platform">
+                    @for (option of footerLinkPlatforms; track option.value) {
+                      <option [value]="option.value">{{ option.label }}</option>
+                    }
+                  </select>
+                  <input
+                    class="field__input link-form__url"
+                    type="text"
+                    placeholder="https://…"
+                    [formControl]="addLinkForm.controls.url"
+                  />
+                  <button class="btn btn--primary" type="submit" [disabled]="linkBusyId() === 'new'">
+                    {{ linkBusyId() === 'new' ? 'Adding…' : 'Add' }}
+                  </button>
+                  <button class="btn btn--link" type="button" (click)="cancelAddingLink()">Cancel</button>
+                </form>
+              }
+
+              @if (t.footerLinks.length === 0) {
+                <p class="info-list__muted">No footer links yet.</p>
+              } @else {
+                <ul class="link-list">
+                  @for (link of t.footerLinks; track link.id; let i = $index) {
+                    <li class="link-list__row">
+                      @if (editingLinkId() === link.id) {
+                        <form class="link-form" [formGroup]="editLinkForm" (ngSubmit)="submitEditLink(link)">
+                          <select class="field__input link-form__platform" [formControl]="editLinkForm.controls.platform">
+                            @for (option of footerLinkPlatforms; track option.value) {
+                              <option [value]="option.value">{{ option.label }}</option>
+                            }
+                          </select>
+                          <input class="field__input link-form__url" type="text" [formControl]="editLinkForm.controls.url" />
+                          <label class="checkbox-field checkbox-field--inline">
+                            <input type="checkbox" [formControl]="editLinkForm.controls.isActive" />
+                            Active
+                          </label>
+                          <button class="btn btn--primary" type="submit" [disabled]="linkBusyId() === link.id">
+                            {{ linkBusyId() === link.id ? 'Saving…' : 'Save' }}
+                          </button>
+                          <button class="btn btn--link" type="button" (click)="cancelEditingLink()">Cancel</button>
+                        </form>
+                      } @else {
+                        <span class="pill">{{ link.platform }}</span>
+                        <a class="link-list__url" [href]="link.url" target="_blank" rel="noopener">{{ link.url }}</a>
+                        @if (!link.isActive) {
+                          <span class="pill">Inactive</span>
+                        }
+                        <div class="link-list__actions">
+                          <button
+                            class="btn btn--icon btn--normal"
+                            type="button"
+                            title="Move up"
+                            [disabled]="i === 0 || !!linkBusyId()"
+                            (click)="moveLink(link, -1)"
+                          >
+                            ↑
+                          </button>
+                          <button
+                            class="btn btn--icon btn--normal"
+                            type="button"
+                            title="Move down"
+                            [disabled]="i === t.footerLinks.length - 1 || !!linkBusyId()"
+                            (click)="moveLink(link, 1)"
+                          >
+                            ↓
+                          </button>
+                          <button
+                            class="btn btn--normal"
+                            type="button"
+                            [disabled]="!!linkBusyId()"
+                            (click)="startEditingLink(link)"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            class="btn btn--link"
+                            type="button"
+                            [disabled]="!!linkBusyId()"
+                            (click)="removeLink(link)"
+                          >
+                            {{ linkBusyId() === link.id ? 'Removing…' : 'Remove' }}
+                          </button>
+                        </div>
+                      }
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          </section>
+        </div>
+
+        <div class="settings-aside">
+          <section class="container settings-card preview-card">
+            <div class="container__tools">
+              <div class="container__heading">
+                <h2 class="container__title">Live preview</h2>
+              </div>
+            </div>
+            <div class="settings-card__body">
+              <div
+                class="preview-hero"
+                [class.preview-hero--centered]="form.controls.headerStyle.value === 'Centered'"
+                [class.preview-hero--transparent]="form.controls.headerStyle.value === 'TransparentOverHero'"
+                [style.background]="previewBackground()"
+                [style.fontFamily]="previewFontFamily()"
+              >
+                <div class="preview-hero__header">
+                  <span class="preview-hero__logo">Your Studio</span>
+                  <span class="preview-hero__nav">Home · Galleries · Contact</span>
+                </div>
+                <p class="preview-hero__tagline">{{ form.controls.tagline.value || 'Capturing your story' }}</p>
+              </div>
+
+              <div class="preview-gallery" [class]="'preview-gallery--' + form.controls.defaultGalleryTemplate.value">
+                @for (block of previewBlocks; track block) {
+                  <span class="preview-gallery__block" [style.background]="form.controls.accentColor.value"></span>
+                }
+              </div>
+
+              <div class="preview-footer" [style.fontFamily]="previewFontFamily()">
+                @if (form.controls.footerText.value) {
+                  <p class="preview-footer__text">{{ form.controls.footerText.value }}</p>
+                }
+                <div class="preview-footer__links">
+                  @for (link of t.footerLinks; track link.id) {
+                    @if (link.isActive) {
+                      <span class="pill">{{ link.platform }}</span>
+                    }
+                  }
+                </div>
+                <p class="preview-footer__copyright">
+                  {{ form.controls.footerCopyrightText.value || '© ' + currentYear + ' Your Studio Name' }}
+                </p>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </form>
+  }
+</div>

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Photobiz.Application.Common.Interfaces;
 using Photobiz.Domain.Common;
-using Photobiz.Domain.Entities;
+using Photobiz.Domain.Entities.Master;
 
 namespace Photobiz.Infrastructure.Persistence
 {
@@ -9,13 +10,15 @@ namespace Photobiz.Infrastructure.Persistence
     /// nothing else; business data (Users, Bookings, ...) lives exclusively in
     /// <see cref="PhotobizDbContext"/>, one instance of that schema per tenant database.
     /// </summary>
-    public class MasterDbContext : DbContext
+    public class MasterDbContext : DbContext, IMasterDbContext
     {
         public MasterDbContext(DbContextOptions<MasterDbContext> options) : base(options)
         {
         }
 
         public DbSet<Tenant> Tenants => Set<Tenant>();
+
+        public DbSet<SmtpSetting> SmtpSettings => Set<SmtpSetting>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

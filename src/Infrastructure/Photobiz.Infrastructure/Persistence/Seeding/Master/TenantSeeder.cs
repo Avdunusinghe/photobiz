@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Photobiz.Domain.Entities;
+using Photobiz.Domain.Entities.Master;
 using Photobiz.Infrastructure.Persistence;
 
 namespace Photobiz.Infrastructure.Persistence.Seeding.Master

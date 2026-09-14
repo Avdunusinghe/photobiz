@@ -32,6 +32,20 @@ export const routes: Routes = [
       { path: 'galleries/photos', loadComponent: placeholderPage, data: { title: 'Photos' } },
       { path: 'clients', loadComponent: placeholderPage, data: { title: 'Clients' } },
       {
+        path: 'settings/tenant',
+        loadComponent: () =>
+          import('./features/tenant-settings/tenant-settings.component').then(
+            (m) => m.TenantSettingsComponent,
+          ),
+        data: { title: 'Business Profile' },
+      },
+      {
+        path: 'settings/theme',
+        loadComponent: () =>
+          import('./features/site-theme/site-theme.component').then((m) => m.SiteThemeComponent),
+        data: { title: 'Website Theme' },
+      },
+      {
         path: 'settings/session-types',
         loadComponent: placeholderPage,
         data: { title: 'Session Types' },

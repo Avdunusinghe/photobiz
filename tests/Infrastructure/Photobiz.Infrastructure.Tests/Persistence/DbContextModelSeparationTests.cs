@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Photobiz.Domain.Entities;
+using Photobiz.Domain.Entities.Master;
 using Photobiz.Infrastructure.Persistence;
 
 namespace Photobiz.Infrastructure.Tests.Persistence
@@ -24,11 +25,12 @@ namespace Photobiz.Infrastructure.Tests.Persistence
                 .Options);
 
         [Fact]
-        public void TenantDbContext_DoesNotIncludeTheTenantEntity()
+        public void TenantDbContext_DoesNotIncludeMasterOnlyEntities()
         {
             using var dbContext = CreateTenantContext();
 
             Assert.Null(dbContext.Model.FindEntityType(typeof(Tenant)));
+            Assert.Null(dbContext.Model.FindEntityType(typeof(SmtpSetting)));
         }
 
         [Fact]
@@ -47,13 +49,13 @@ namespace Photobiz.Infrastructure.Tests.Persistence
         }
 
         [Fact]
-        public void MasterDbContext_OnlyIncludesTheTenantEntity()
+        public void MasterDbContext_OnlyIncludesMasterEntities()
         {
             using var dbContext = CreateMasterContext();
 
-            var entityTypes = dbContext.Model.GetEntityTypes().Select(t => t.ClrType).ToList();
+            var entityTypes = dbContext.Model.GetEntityTypes().Select(t => t.ClrType).ToHashSet();
 
-            Assert.Equal([typeof(Tenant)], entityTypes);
+            Assert.Equal(new HashSet<Type> { typeof(Tenant), typeof(SmtpSetting) }, entityTypes);
         }
     }
 }

@@ -1,4 +1,4 @@
-using Photobiz.Domain.Entities;
+using Photobiz.Domain.Entities.Master;
 
 namespace Photobiz.Infrastructure.Tests.Domain
 {
@@ -93,6 +93,135 @@ namespace Photobiz.Infrastructure.Tests.Domain
             var tenant = CreateTenant();
 
             Assert.Throws<ArgumentException>(() => tenant.UpdateConnectionString(connectionString));
+        }
+
+        [Fact]
+        public void UpdateProfile_ReplacesNameAndContactDetails()
+        {
+            var tenant = CreateTenant();
+
+            tenant.UpdateProfile(
+                "  Acme Studio Ltd  ",
+                "  hello@acmestudio.test  ",
+                "  Grace  ",
+                "  Hopper  ",
+                "  +1 555 0199  ",
+                "  221B Baker Street  ",
+                "  Manchester  ",
+                "  UK  ");
+
+            Assert.Equal("Acme Studio Ltd", tenant.Name);
+            Assert.Equal("hello@acmestudio.test", tenant.CustomerEmail);
+            Assert.Equal("Grace", tenant.CustomerFirstName);
+            Assert.Equal("Hopper", tenant.CustomerLastName);
+            Assert.Equal("+1 555 0199", tenant.Phone);
+            Assert.Equal("221B Baker Street", tenant.Address);
+            Assert.Equal("Manchester", tenant.City);
+            Assert.Equal("UK", tenant.Country);
+        }
+
+        [Fact]
+        public void UpdateProfile_NeverTouchesTheLogo()
+        {
+            var tenant = CreateTenant();
+            tenant.SetLogo("https://cdn.acmestudio.test/logo.webp", "Tenant/acme/Photos/Logo/acme-logo-abc.webp");
+
+            tenant.UpdateProfile(
+                "Acme Studio Ltd", "hello@acmestudio.test", "Grace", "Hopper",
+                "+1 555 0199", "221B Baker Street", "Manchester", "UK");
+
+            Assert.Equal("https://cdn.acmestudio.test/logo.webp", tenant.LogoUrl);
+            Assert.Equal("Tenant/acme/Photos/Logo/acme-logo-abc.webp", tenant.LogoStoragePath);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData("   ")]
+        public void UpdateProfile_WithBlankName_Throws(string name)
+        {
+            var tenant = CreateTenant();
+
+            Assert.Throws<ArgumentException>(() => tenant.UpdateProfile(
+                name, "owner@acme.test", "Ada", "Lovelace", "+1 555 0100", "1 Street", "London", "UK"));
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData("   ")]
+        public void UpdateProfile_WithBlankCustomerEmail_Throws(string customerEmail)
+        {
+            var tenant = CreateTenant();
+
+            Assert.Throws<ArgumentException>(() => tenant.UpdateProfile(
+                "Acme Studio", customerEmail, "Ada", "Lovelace", "+1 555 0100", "1 Street", "London", "UK"));
+        }
+
+        [Fact]
+        public void SetLogo_StoresUrlAndStoragePath()
+        {
+            var tenant = CreateTenant();
+
+            tenant.SetLogo("https://cdn.acmestudio.test/logo.webp", "Tenant/acme/Photos/Logo/acme-logo-abc.webp");
+
+            Assert.Equal("https://cdn.acmestudio.test/logo.webp", tenant.LogoUrl);
+            Assert.Equal("Tenant/acme/Photos/Logo/acme-logo-abc.webp", tenant.LogoStoragePath);
+        }
+
+        [Fact]
+        public void SetLogo_WhenNoPreviousLogo_ReturnsNull()
+        {
+            var tenant = CreateTenant();
+
+            var previous = tenant.SetLogo("https://cdn.acmestudio.test/logo.webp", "Tenant/acme/Photos/Logo/a.webp");
+
+            Assert.Null(previous);
+        }
+
+        [Fact]
+        public void SetLogo_CalledAgain_ReturnsThePreviousStoragePathForCleanup()
+        {
+            var tenant = CreateTenant();
+            tenant.SetLogo("https://cdn.acmestudio.test/logo-1.webp", "Tenant/acme/Photos/Logo/logo-1.webp");
+
+            var previous = tenant.SetLogo("https://cdn.acmestudio.test/logo-2.webp", "Tenant/acme/Photos/Logo/logo-2.webp");
+
+            Assert.Equal("Tenant/acme/Photos/Logo/logo-1.webp", previous);
+            Assert.Equal("https://cdn.acmestudio.test/logo-2.webp", tenant.LogoUrl);
+            Assert.Equal("Tenant/acme/Photos/Logo/logo-2.webp", tenant.LogoStoragePath);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData("   ")]
+        public void SetLogo_WithBlankUrl_Throws(string logoUrl)
+        {
+            var tenant = CreateTenant();
+
+            Assert.Throws<ArgumentException>(() => tenant.SetLogo(logoUrl, "Tenant/acme/Photos/Logo/a.webp"));
+        }
+
+        [Fact]
+        public void RemoveLogo_ClearsUrlAndStoragePath()
+        {
+            var tenant = CreateTenant();
+            tenant.SetLogo("https://cdn.acmestudio.test/logo.webp", "Tenant/acme/Photos/Logo/a.webp");
+
+            var previous = tenant.RemoveLogo();
+
+            Assert.Equal("Tenant/acme/Photos/Logo/a.webp", previous);
+            Assert.Null(tenant.LogoUrl);
+            Assert.Null(tenant.LogoStoragePath);
+        }
+
+        [Fact]
+        public void RemoveLogo_WhenNoLogoIsSet_ReturnsNullAndIsANoOp()
+        {
+            var tenant = CreateTenant();
+
+            var previous = tenant.RemoveLogo();
+
+            Assert.Null(previous);
+            Assert.Null(tenant.LogoUrl);
         }
 
         [Fact]
