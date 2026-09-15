@@ -1,0 +1,43 @@
+@model PublicSite
+@{
+    ViewData["MetaDescription"] = Model.Tagline;
+
+    var heroBackground = Model.GradientStartColor is not null && Model.GradientEndColor is not null
+        ? $"linear-gradient({(Model.GradientDirection switch { GradientDirection.ToBottom => "to bottom", GradientDirection.Diagonal => "to bottom right", _ => "to right" })}, {Model.GradientStartColor}, {Model.GradientEndColor})"
+        : Model.PrimaryColor;
+}
+
+<section class="flex min-h-[60vh] flex-col items-center justify-center px-4 py-24 text-center text-white" style="background: @heroBackground">
+    <h1 class="max-w-2xl text-4xl font-bold sm:text-5xl">@(Model.Tagline ?? $"Welcome to {Model.TenantName}")</h1>
+    <a href="~/galleries" class="mt-8 inline-block rounded-full px-6 py-3 font-semibold text-white shadow-lg transition hover:opacity-90" style="background: @Model.AccentColor">
+        View galleries
+    </a>
+</section>
+
+@if (Model.Galleries.Count > 0)
+{
+    <section class="mx-auto max-w-5xl px-4 py-16">
+        <h2 class="mb-8 text-2xl font-bold">Featured galleries</h2>
+        <div class="gallery-grid">
+            @foreach (var gallery in Model.Galleries.Take(4))
+            {
+                var cover = gallery.Photos.FirstOrDefault();
+                <a href="~/galleries/@gallery.Id" class="group block overflow-hidden rounded-xl bg-gray-100">
+                    <div class="aspect-square overflow-hidden">
+                        @if (cover is not null)
+                        {
+                            <img src="@cover.MediumUrl" alt="@(cover.AltText ?? gallery.Title)" loading="lazy" class="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                        }
+                    </div>
+                    <div class="p-3">
+                        <h3 class="font-semibold" style="color: var(--color-primary)">@gallery.Title</h3>
+                        @if (!string.IsNullOrWhiteSpace(gallery.Description))
+                        {
+                            <p class="mt-1 text-sm text-gray-500">@gallery.Description</p>
+                        }
+                    </div>
+                </a>
+            }
+        </div>
+    </section>
+}

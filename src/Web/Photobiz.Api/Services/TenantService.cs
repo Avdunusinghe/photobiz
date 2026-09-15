@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Photobiz.Application.Common.Constants;
 using Photobiz.Application.Common.Interfaces;
 using Photobiz.Application.Common.Settings;
+using Photobiz.Domain.Entities.Master;
 using Photobiz.Infrastructure.Persistence;
 
 namespace Photobiz.Api.Services
@@ -64,6 +65,22 @@ namespace Photobiz.Api.Services
             string host,
             CancellationToken cancellationToken = default)
         {
+            var tenant = await ResolveTenantByHostAsync(host, cancellationToken);
+
+            return tenant?.ConnectionString;
+        }
+
+        public async Task<PublicTenantInfo?> GetPublicTenantByHostAsync(
+            string host,
+            CancellationToken cancellationToken = default)
+        {
+            var tenant = await ResolveTenantByHostAsync(host, cancellationToken);
+
+            return tenant is null ? null : new PublicTenantInfo(tenant.Name, tenant.LogoUrl);
+        }
+
+        private async Task<Tenant?> ResolveTenantByHostAsync(string host, CancellationToken cancellationToken)
+        {
             if (string.IsNullOrWhiteSpace(host))
             {
                 return null;
@@ -73,21 +90,21 @@ namespace Photobiz.Api.Services
 
             // A verified custom domain always wins — it's an explicit, individually-claimed
             // identity, unlike a subdomain that's mechanically derived from the base domain.
-            var customDomainConnectionString = await _masterDbContext.Tenants
-                .Where(t => t.CustomDomain == normalizedHost && t.CustomDomainVerifiedAt != null)
-                .Select(t => t.ConnectionString)
-                .SingleOrDefaultAsync(cancellationToken);
+            var byCustomDomain = await _masterDbContext.Tenants
+                .SingleOrDefaultAsync(
+                    t => t.CustomDomain == normalizedHost && t.CustomDomainVerifiedAt != null,
+                    cancellationToken);
 
-            if (customDomainConnectionString is not null)
+            if (byCustomDomain is not null)
             {
-                return customDomainConnectionString;
+                return byCustomDomain;
             }
 
             var tenantKey = ExtractSubdomainTenantKey(normalizedHost);
 
             return tenantKey is null
                 ? null
-                : await GetTenantConnectionStringAsync(tenantKey, cancellationToken);
+                : await _masterDbContext.Tenants.SingleOrDefaultAsync(t => t.TenantKey == tenantKey, cancellationToken);
         }
 
         private string? ExtractSubdomainTenantKey(string normalizedHost)

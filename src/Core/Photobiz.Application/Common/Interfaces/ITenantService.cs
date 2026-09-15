@@ -30,5 +30,17 @@ namespace Photobiz.Application.Common.Interfaces
         /// treated as the tenant key. Returns <c>null</c> when neither resolves.
         /// </summary>
         Task<string?> GetTenantConnectionStringByHostAsync(string host, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// The same Host-header resolution as <see cref="GetTenantConnectionStringByHostAsync"/>,
+        /// but returning the tenant's public-facing profile fields instead of its connection
+        /// string — for a public portfolio site's own handlers (already running against the right
+        /// tenant database via <c>TenantSelectionMiddleware</c>) that also need Master-database
+        /// fields like the tenant's display name and logo.
+        /// </summary>
+        Task<PublicTenantInfo?> GetPublicTenantByHostAsync(string host, CancellationToken cancellationToken = default);
     }
+
+    /// <summary>A tenant's public-facing identity — deliberately just the fields a portfolio site's header/SEO tags need, nothing administrative.</summary>
+    public record PublicTenantInfo(string Name, string? LogoUrl);
 }

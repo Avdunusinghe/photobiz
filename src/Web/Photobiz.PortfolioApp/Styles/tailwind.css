@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  /* Even rows/columns — GalleryTemplate.Grid */
+  .gallery-grid {
+    @apply grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4;
+  }
+
+  /* Staggered, Pinterest-style layout — GalleryTemplate.Masonry */
+  .gallery-masonry {
+    columns: 2;
+    column-gap: 0.75rem;
+  }
+  .gallery-masonry > * {
+    @apply mb-3 break-inside-avoid;
+  }
+  @screen sm {
+    .gallery-masonry {
+      columns: 3;
+    }
+  }
+  @screen md {
+    .gallery-masonry {
+      columns: 4;
+    }
+  }
+
+  /* One row, horizontal scroll via Swiper — GalleryTemplate.Carousel */
+  .gallery-carousel .swiper-slide {
+    @apply w-auto;
+  }
+
+  /* One large photo at a time via Swiper — GalleryTemplate.Slideshow */
+  .gallery-slideshow {
+    @apply mx-auto max-w-3xl;
+  }
+
+  .gallery-photo {
+    @apply block h-full w-full cursor-zoom-in rounded-lg object-cover transition-opacity hover:opacity-90;
+  }
+}

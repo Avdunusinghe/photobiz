@@ -19,5 +19,6 @@
   <Folder Name="/Web/">
     <Project Path="src/Web/Photobiz.Api/Photobiz.Api.csproj" Id="6f1ec55c-b2fd-4400-906f-0681f3a2f516" />
     <Project Path="src/Web/Photobiz.PortfolioSample/Photobiz.PortfolioSample.csproj" />
+    <Project Path="src/Web/Photobiz.PortfolioApp/Photobiz.PortfolioApp.csproj" />
   </Folder>
 </Solution>

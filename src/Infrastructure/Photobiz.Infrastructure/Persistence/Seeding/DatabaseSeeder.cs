@@ -40,6 +40,7 @@ namespace Photobiz.Infrastructure.Persistence.Seeding
             await SmtpSettingSeeder.SeedAsync(masterDbContext, TenantSeeder.DefaultTenantKey, logger, cancellationToken);
             await UserSeeder.SeedAsync(dbContext, passwordHasher, logger, cancellationToken);
             await SiteThemeSeeder.SeedAsync(dbContext, logger, cancellationToken);
+            await GallerySeeder.SeedAsync(dbContext, logger, cancellationToken);
         }
     }
 }

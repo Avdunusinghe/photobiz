@@ -1,0 +1,136 @@
+@inject ICurrentSiteProvider SiteProvider
+@{
+    var site = await SiteProvider.GetAsync(Context.RequestAborted);
+
+    var request = Context.Request;
+    var canonicalUrl = $"{request.Scheme}://{request.Host}{request.Path}";
+
+    var pageTitle = ViewData["Title"] as string;
+    var title = string.IsNullOrWhiteSpace(pageTitle) ? site.TenantName : $"{pageTitle} - {site.TenantName}";
+    var description = ViewData["MetaDescription"] as string
+        ?? site.Tagline
+        ?? $"{site.TenantName} - photography portfolio.";
+
+    var fontFamily = string.IsNullOrWhiteSpace(site.FontFamily)
+        ? "ui-sans-serif, system-ui, sans-serif"
+        : $"'{site.FontFamily}', ui-sans-serif, system-ui, sans-serif";
+
+    var heroBackground = site.GradientStartColor is not null && site.GradientEndColor is not null
+        ? $"linear-gradient({GradientCss(site.GradientDirection)}, {site.GradientStartColor}, {site.GradientEndColor})"
+        : site.PrimaryColor;
+
+    var isHomePage = string.Equals(ViewContext.RouteData.Values["controller"] as string, "Home", StringComparison.OrdinalIgnoreCase)
+        && string.Equals(ViewContext.RouteData.Values["action"] as string, "Index", StringComparison.OrdinalIgnoreCase);
+    var headerIsOverlaid = site.HeaderStyle == HeaderStyle.TransparentOverHero && isHomePage;
+
+    var localBusiness = new LocalBusiness
+    {
+        Name = site.TenantName,
+        Url = new Uri(canonicalUrl),
+        Description = description,
+    };
+    if (!string.IsNullOrWhiteSpace(site.LogoUrl))
+    {
+        localBusiness.Logo = new Uri(site.LogoUrl);
+        localBusiness.Image = new Uri(site.LogoUrl);
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@title</title>
+    <meta name="description" content="@description" />
+    <link rel="canonical" href="@canonicalUrl" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="@title" />
+    <meta property="og:description" content="@description" />
+    <meta property="og:url" content="@canonicalUrl" />
+    @if (!string.IsNullOrWhiteSpace(site.LogoUrl))
+    {
+        <meta property="og:image" content="@site.LogoUrl" />
+    }
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="@title" />
+    <meta name="twitter:description" content="@description" />
+
+    <link rel="stylesheet" href="~/css/bundle.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11.1.14/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox@3.3.1/dist/css/glightbox.min.css" />
+
+    <style>
+        :root {
+            --color-primary: @site.PrimaryColor;
+            --color-secondary: @site.SecondaryColor;
+            --color-accent: @site.AccentColor;
+            --font-family: @fontFamily;
+        }
+
+        body {
+            font-family: var(--font-family);
+        }
+    </style>
+
+    @* The "!" opts this element out of TagHelper processing — Microsoft.AspNetCore.Mvc.TagHelpers'
+       built-in ScriptTagHelper otherwise intercepts every <script> tag (even ones with no asp-*
+       attributes) and re-serializes its attributes through an HTML encoder, corrupting the literal
+       "+" in "application/ld+json" into "&#x2B;json". *@
+    <!script type="application/ld+json">@Html.Raw(localBusiness.ToString())</!script>
+</head>
+<body class="text-gray-900 antialiased">
+    <header class="@(headerIsOverlaid ? "absolute inset-x-0 top-0 z-10 bg-transparent" : "relative")" style="@(headerIsOverlaid ? "" : $"background: {heroBackground}")">
+        <div class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4 @(site.HeaderStyle == HeaderStyle.Centered ? "flex-col text-center" : "")">
+            <a href="~/" class="flex items-center gap-3 text-white">
+                @if (!string.IsNullOrWhiteSpace(site.LogoUrl))
+                {
+                    <img src="@site.LogoUrl" alt="@site.TenantName" class="h-10 w-10 rounded-full bg-white/20 object-cover" />
+                }
+                <span class="text-lg font-bold">@site.TenantName</span>
+            </a>
+            <nav class="flex gap-6 text-sm font-medium text-white/90">
+                <a href="~/" class="hover:text-white">Home</a>
+                <a href="~/galleries" class="hover:text-white">Galleries</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        @RenderBody()
+    </main>
+
+    <footer class="border-t border-gray-200 bg-gray-50 py-10">
+        <div class="mx-auto max-w-5xl px-4 text-center text-sm text-gray-500">
+            @if (!string.IsNullOrWhiteSpace(site.FooterText))
+            {
+                <p class="mb-3">@site.FooterText</p>
+            }
+            @if (site.FooterLinks.Count > 0)
+            {
+                <div class="mb-3 flex justify-center gap-4">
+                    @foreach (var link in site.FooterLinks)
+                    {
+                        <a href="@link.Url" target="_blank" rel="noopener" class="hover:text-brand-primary">@link.Platform</a>
+                    }
+                </div>
+            }
+            <p>@(string.IsNullOrWhiteSpace(site.FooterCopyrightText) ? $"© {DateTime.UtcNow.Year} {site.TenantName}" : site.FooterCopyrightText)</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11.1.14/swiper-bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/glightbox@3.3.1/dist/js/glightbox.min.js"></script>
+    <script src="~/js/bundle.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+@functions {
+    private static string GradientCss(GradientDirection direction) => direction switch
+    {
+        GradientDirection.ToBottom => "to bottom",
+        GradientDirection.Diagonal => "to bottom right",
+        _ => "to right",
+    };
+}

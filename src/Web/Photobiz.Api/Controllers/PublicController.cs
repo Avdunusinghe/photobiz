@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Photobiz.Application.Features.Public.GetPublicSite;
 using Photobiz.Application.Features.Public.GetTenantDiagnostics;
 
 namespace Photobiz.Api.Controllers
@@ -31,6 +32,15 @@ namespace Photobiz.Api.Controllers
             var diagnostics = await _mediator.Send(new GetTenantDiagnosticsQuery(), cancellationToken);
 
             return Ok(new WhoAmIResponse(Request.Host.Value ?? string.Empty, diagnostics.UserCount, diagnostics.SampleUsernames));
+        }
+
+        /// <summary>Everything the tenant's public portfolio site (Photobiz.PortfolioApp) needs to render a page.</summary>
+        [HttpGet("site")]
+        public async Task<ActionResult<PublicSiteDto>> GetSite(CancellationToken cancellationToken)
+        {
+            var site = await _mediator.Send(new GetPublicSiteQuery(Request.Host.Value ?? string.Empty), cancellationToken);
+
+            return Ok(site);
         }
     }
 

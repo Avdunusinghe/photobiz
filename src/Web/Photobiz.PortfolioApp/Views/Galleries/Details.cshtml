@@ -1,0 +1,114 @@
+@model GalleryDetailsViewModel
+@{
+    var gallery = Model.Gallery;
+
+    var imageGallery = new ImageGallery
+    {
+        Name = gallery.Title,
+        Description = gallery.Description ?? string.Empty,
+        AssociatedMedia = gallery.Photos
+            .Select(photo => (IMediaObject)new ImageObject
+            {
+                ContentUrl = new Uri(photo.FullUrl),
+                ThumbnailUrl = new Uri(photo.ThumbnailUrl),
+                Caption = photo.AltText ?? string.Empty,
+            })
+            .ToList(),
+    };
+}
+
+<!script type="application/ld+json">@Html.Raw(imageGallery.ToString())</!script>
+
+<section class="mx-auto max-w-5xl px-4 py-16">
+    <a href="~/galleries" class="text-sm font-medium hover:underline" style="color: var(--color-primary)">&larr; All galleries</a>
+    <h1 class="mb-2 mt-4 text-3xl font-bold">@gallery.Title</h1>
+    @if (!string.IsNullOrWhiteSpace(gallery.Description))
+    {
+        <p class="mb-8 text-gray-500">@gallery.Description</p>
+    }
+    else
+    {
+        <div class="mb-8"></div>
+    }
+
+    @switch (Model.EffectiveTemplate)
+    {
+        case GalleryTemplate.Masonry:
+            <div class="gallery-masonry">
+                @foreach (var photo in gallery.Photos)
+                {
+                    <a href="@photo.FullUrl" class="glightbox block" data-gallery="gallery-@gallery.Id">
+                        <img src="@photo.MediumUrl" alt="@(photo.AltText ?? gallery.Title)" loading="lazy" class="gallery-photo w-full" />
+                    </a>
+                }
+            </div>
+            break;
+
+        case GalleryTemplate.Carousel:
+            <div class="gallery-carousel swiper">
+                <div class="swiper-wrapper">
+                    @foreach (var photo in gallery.Photos)
+                    {
+                        <div class="swiper-slide" style="width: 320px">
+                            <a href="@photo.FullUrl" class="glightbox block" data-gallery="gallery-@gallery.Id">
+                                <img src="@photo.MediumUrl" alt="@(photo.AltText ?? gallery.Title)" loading="lazy" class="gallery-photo aspect-square" />
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+            break;
+
+        case GalleryTemplate.Slideshow:
+            <div class="gallery-slideshow swiper">
+                <div class="swiper-wrapper">
+                    @foreach (var photo in gallery.Photos)
+                    {
+                        <div class="swiper-slide">
+                            <a href="@photo.FullUrl" class="glightbox block" data-gallery="gallery-@gallery.Id">
+                                <img src="@photo.MediumUrl" alt="@(photo.AltText ?? gallery.Title)" loading="lazy" class="gallery-photo aspect-[4/3]" />
+                            </a>
+                        </div>
+                    }
+                </div>
+                <div class="swiper-pagination"></div>
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-button-next"></div>
+            </div>
+            break;
+
+        default:
+            <div class="gallery-grid">
+                @foreach (var photo in gallery.Photos)
+                {
+                    <a href="@photo.FullUrl" class="glightbox block aspect-square" data-gallery="gallery-@gallery.Id">
+                        <img src="@photo.MediumUrl" alt="@(photo.AltText ?? gallery.Title)" loading="lazy" class="gallery-photo" />
+                    </a>
+                }
+            </div>
+            break;
+    }
+</section>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            GLightbox({ selector: '.glightbox' });
+
+            var carousel = document.querySelector('.gallery-carousel');
+            if (carousel) {
+                new Swiper(carousel, { slidesPerView: 'auto', spaceBetween: 12, freeMode: true });
+            }
+
+            var slideshow = document.querySelector('.gallery-slideshow');
+            if (slideshow) {
+                new Swiper(slideshow, {
+                    effect: 'fade',
+                    loop: true,
+                    pagination: { el: '.swiper-pagination', clickable: true },
+                    navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+                });
+            }
+        });
+    </script>
+}

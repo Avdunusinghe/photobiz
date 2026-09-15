@@ -186,5 +186,43 @@ namespace Photobiz.Api.Tests.Services
             // No subdomain label at all — must not resolve to an empty tenant key.
             Assert.Null(await CreateService(dbContext).GetTenantConnectionStringByHostAsync(BaseDomain));
         }
+
+        [Fact]
+        public async Task GetPublicTenantByHostAsync_WithSubdomainOfBaseDomain_ReturnsItsNameAndLogo()
+        {
+            using var dbContext = CreateMasterDbContext();
+            var tenant = AddTenant(dbContext, "acme", "Server=.;Database=Tenant_Acme;");
+            tenant.SetLogo("https://cdn.acme.test/logo.webp", "Tenant/acme/Photos/Logo/logo.webp");
+            await dbContext.SaveChangesAsync();
+
+            var info = await CreateService(dbContext).GetPublicTenantByHostAsync($"acme.{BaseDomain}");
+
+            Assert.NotNull(info);
+            Assert.Equal("Acme", info.Name);
+            Assert.Equal("https://cdn.acme.test/logo.webp", info.LogoUrl);
+        }
+
+        [Fact]
+        public async Task GetPublicTenantByHostAsync_WithVerifiedCustomDomain_ResolvesIt()
+        {
+            using var dbContext = CreateMasterDbContext();
+            AddTenant(
+                dbContext, "acme", "Server=.;Database=Tenant_Acme;",
+                customDomain: "www.acmestudio.test", verifyCustomDomain: true);
+
+            var info = await CreateService(dbContext).GetPublicTenantByHostAsync("www.acmestudio.test");
+
+            Assert.NotNull(info);
+            Assert.Equal("Acme", info.Name);
+        }
+
+        [Fact]
+        public async Task GetPublicTenantByHostAsync_WithUnrelatedHost_ReturnsNull()
+        {
+            using var dbContext = CreateMasterDbContext();
+            AddTenant(dbContext, "acme", "Server=.;Database=Tenant_Acme;");
+
+            Assert.Null(await CreateService(dbContext).GetPublicTenantByHostAsync("example.com"));
+        }
     }
 }
